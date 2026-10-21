@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>English Habit Tracker</title>
+  
+  <!-- Web App Meta for iOS / Android Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EngTracker">
+  <meta name="theme-color" content="#090d16">
+  
+  <!-- Fonts & Tailwind CSS & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brandDark: '#080c14',
+            surface: '#111726',
+            surfaceLight: '#182138',
+            duo: '#58CC02',
+            duoDark: '#46a302',
+            bbc: '#BB1919',
+            bbcLight: '#d92727',
+            busuu: '#2486FF',
+            busuuDark: '#1367d8',
+            sunday: '#8B5CF6'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* iOS Safe area padding & smooth scroll */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+    body {
+      padding-top: var(--sat);
+      padding-bottom: calc(var(--sab) + 16px);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #080c14;
+    }
+    
+    /* Glass card styles */
+    .glass-card {
+      background: rgba(17, 23, 38, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .glow-duo {
+      box-shadow: 0 0 25px -5px rgba(88, 204, 2, 0.35);
+    }
+    .glow-bbc {
+      box-shadow: 0 0 25px -5px rgba(187, 25, 25, 0.35);
+    }
+    .glow-busuu {
+      box-shadow: 0 0 25px -5px rgba(36, 134, 255, 0.35);
+    }
+    .glow-sunday {
+      box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.35);
+    }
+
+    /* Circular Progress */
+    .circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 3.5;
+    }
+    .circle-progress {
+      fill: none;
+      stroke-width: 3.8;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Custom scrollbar for notes text */
+    textarea::-webkit-scrollbar {
+      width: 4px;
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-duo selection:text-black">
+
+  <!-- Main Container (Mobile Max Width) -->
+  <div class="w-full max-w-md mx-auto flex-1 flex flex-col px-4 pt-3 pb-8">
+
+    <!-- Header: App Name, Streak & Stats Button -->
+    <header class="flex items-center justify-between py-2">
+      <div class="flex items-center space-x-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-duo to-emerald-400 flex items-center justify-center shadow-lg shadow-duo/20">
+          <i class="ph-bold ph-translate text-black text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white leading-tight">English Daily</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Твой путь к C1</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Streak Badge -->
+        <div id="streakBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 shadow-sm transition-transform active:scale-95">
+          <i class="ph-fill ph-fire text-lg text-orange-500 animate-pulse"></i>
+          <span id="streakCount" class="font-bold text-sm tracking-wide">0</span>
+          <span class="text-xs text-orange-300 font-medium hidden sm:inline">дн</span>
+        </div>
+
+        <!-- Info / Stats Button -->
+        <button onclick="openStatsModal()" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 border border-white/5 flex items-center justify-center transition">
+          <i class="ph-bold ph-chart-bar text-base"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Today's Hero Banner Card -->
+    <div id="todayCard" class="mt-4 p-5 rounded-3xl relative overflow-hidden transition-all duration-300">
+      <div class="absolute -right-6 -bottom-6 w-32 h-32 opacity-15 rounded-full pointer-events-none" id="todayHeroBg"></div>
+      
+      <div class="flex items-start justify-between relative z-10">
+        <div>
+          <span id="todayLabelBadge" class="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase rounded-full border">
+            СЕГОДНЯ
+          </span>
+          <h2 id="todayTitle" class="text-2xl font-extrabold mt-1 text-white tracking-tight">Понедельник</h2>
+          <p id="todayFocus" class="text-sm font-medium mt-0.5 flex items-center gap-1.5 opacity-90">
+            <span id="todayAppIcon"></span>
+            <span id="todayAppText">Duolingo Focus</span>
+          </p>
+        </div>
+
+        <!-- Check Button for Today -->
+        <button id="todayCheckBtn" onclick="toggleTodayCompletion()" class="relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200">
+          <i id="todayCheckIcon" class="ph-bold ph-check text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 pt-3.5 border-t border-white/10 flex items-center justify-between text-xs">
+        <span id="todayStatusText" class="text-slate-300 font-medium">Статус: Еще не выполнено</span>
+        <a id="todayDirectLink" href="#" target="_blank" rel="noopener" class="flex items-center gap-1 font-semibold hover:underline">
+          <span>Открыть урок</span>
+          <i class="ph-bold ph-arrow-up-right text-xs"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Week Navigator & Weekly Progress Stats -->
+    <div class="mt-5 glass-card rounded-2xl p-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3.5">
+        <!-- SVG Progress Ring -->
+        <div class="relative w-14 h-14 flex items-center justify-center">
+          <svg class="w-14 h-14" viewBox="0 0 44 44">
+            <circle class="circle-bg" cx="22" cy="22" r="18" />
+            <circle id="weekProgressCircle" class="circle-progress stroke-duo" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="weekPercent" class="text-xs font-bold text-white">0%</span>
+          </div>
+        </div>
+        
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="currentWeekRange" class="font-bold text-sm text-slate-100">Текущая неделя</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Выполнено <strong id="weekFraction" class="text-white">0/7</strong> дней
+          </p>
+        </div>
+      </div>
+
+      <!-- Week Switcher -->
+      <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-white/5">
+        <button onclick="changeWeekOffset(-1)" class="w-7 h-7 rounded-lg hover:bg-slate-700 active:scale-90 flex items-center justify-center text-slate-300" title="Прошлая неделя">
+          <i class="ph-bold ph-caret-left text-sm"></i>
+        </button>
+        <button onclick="resetToCurrentWeek()" id="currentWeekIndicatorBtn" class="px-2 text-[11px] font-semibold text-slate-300 hover:text-white" title="Вернуться к сегодня">
+          Сегодня
+        </button>
+        <button onclick="changeWeekOffset(1)" class="w-7 h-7 rounded-lg hover:bg-slate-700 active:scale-90 flex items-center justify-center text-slate-300" title="Следующая неделя">
+          <i class="ph-bold ph-caret-right text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Action Launchers (Apps Bar) -->
+    <div class="mt-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1 flex items-center justify-between">
+        <span>Быстрый запуск сервисов</span>
+        <span class="text-[10px] text-slate-500 font-normal">тап для открытия</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <!-- Duolingo -->
+        <a href="https://www.duolingo.com" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-duo/30 flex items-center gap-2 transition active:scale-95 group">
+          <div class="w-7 h-7 rounded-lg bg-duo/20 text-duo flex items-center justify-center group-hover:scale-105 transition-transform">
+            <i class="ph-bold ph-bird text-base"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate text-slate-100">Duolingo</div>
+            <div class="text-[10px] text-slate-400">Пн, Ср, Пт</div>
+          </div>
+        </a>
+
+        <!-- BBC Learning English -->
+        <a href="https://www.bbc.co.uk/learningenglish" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-bbc/30 flex items-center gap-2 transition active:scale-95 group">
+          <div class="w-7 h-7 rounded-lg bg-bbc/20 text-red-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <i class="ph-bold ph-broadcast text-base"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate text-slate-100">BBC Eng</div>
+            <div class="text-[10px] text-slate-400">Вт, Чт</div>
+          </div>
+        </a>
+
+        <!-- Busuu -->
+        <a href="https://www.busuu.com" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-busuu/30 flex items-center gap-2 transition active:scale-95 group">
+          <div class="w-7 h-7 rounded-lg bg-busuu/20 text-busuu flex items-center justify-center group-hover:scale-105 transition-transform">
+            <i class="ph-bold ph-chats-circle text-base"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate text-slate-100">Busuu</div>
+            <div class="text-[10px] text-slate-400">Суббота</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Days of Week Cards List -->
+    <div class="mt-5 flex-1">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5 px-1 flex items-center justify-between">
+        <span>План по дням недели</span>
+        <span id="selectedWeekName" class="text-[11px] text-duo font-semibold">Неделя 1</span>
+      </div>
+
+      <div id="weekDaysList" class="space-y-2.5">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Footer Advice / Tip -->
+    <div class="mt-6 p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-850 border border-white/5 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-amber-400/10 text-amber-300 flex items-center justify-center flex-shrink-0">
+        <i class="ph-fill ph-lightbulb text-lg"></i>
+      </div>
+      <p id="motivationalQuote" class="text-xs text-slate-300 italic leading-snug">
+        «Small daily habits lead to massive fluency over time.»
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Note Editor Modal -->
+  <div id="noteModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center hidden p-0 sm:p-4 transition-opacity">
+    <div class="w-full max-w-md bg-surface border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl transform transition-transform">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div>
+          <h4 id="noteModalDayTitle" class="text-base font-bold text-white">Заметка к дню</h4>
+          <p id="noteModalSubTitle" class="text-xs text-slate-400">Слова, грамматика или заметка к уроку</p>
+        </div>
+        <button onclick="closeNoteModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+
+      <div class="mt-4">
+        <textarea id="noteInput" rows="5" class="w-full bg-brandDark/70 border border-white/10 rounded-2xl p-3.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-duo resize-none" placeholder="Например: Выучил 10 слов по теме Travel. Разобрал Present Perfect vs Past Simple..."></textarea>
+      </div>
+
+      <div class="mt-4 flex gap-2.5">
+        <button onclick="deleteCurrentNote()" class="px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition flex items-center gap-1.5">
+          <i class="ph-bold ph-trash"></i>
+          Удалить
+        </button>
+        <button onclick="saveCurrentNote()" class="flex-1 py-2.5 rounded-xl bg-duo hover:bg-duoDark active:scale-95 text-black font-bold text-xs tracking-wide transition shadow-lg shadow-duo/20 flex items-center justify-center gap-1.5">
+          <i class="ph-bold ph-floppy-disk text-base"></i>
+          Сохранить заметку
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Stats Modal -->
+  <div id="statsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="w-full max-w-md bg-surface border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <i class="ph-fill ph-trophy text-amber-400 text-xl"></i>
+          <h4 class="text-base font-bold text-white">Статистика обучения</h4>
+        </div>
+        <button onclick="closeStatsModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="ph-bold ph-x text-sm"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
+          <div class="text-[11px] text-slate-400 font-medium">Всего занятий</div>
+          <div id="statsTotalCompleted" class="text-2xl font-black text-white mt-1">0</div>
+          <div class="text-[10px] text-duo mt-0.5 flex items-center gap-1">
+            <i class="ph-bold ph-check-circle"></i> За все время
+          </div>
+        </div>
+
+        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
+          <div class="text-[11px] text-slate-400 font-medium">Текущий стрик</div>
+          <div id="statsStreakDays" class="text-2xl font-black text-orange-400 mt-1">0 дн.</div>
+          <div class="text-[10px] text-orange-300 mt-0.5 flex items-center gap-1">
+            <i class="ph-fill ph-fire"></i> В непрерывном огне
+          </div>
+        </div>
+
+        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
+          <div class="text-[11px] text-slate-400 font-medium">Успех этой недели</div>
+          <div id="statsWeekRate" class="text-2xl font-black text-emerald-400 mt-1">0%</div>
+          <div id="statsWeekDaysCount" class="text-[10px] text-slate-400 mt-0.5">0 из 7 дней</div>
+        </div>
+
+        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
+          <div class="text-[11px] text-slate-400 font-medium">Заметок создано</div>
+          <div id="statsTotalNotes" class="text-2xl font-black text-busuu mt-1">0</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Словарь и правила</div>
+        </div>
+      </div>
+
+      <!-- Schedule recap -->
+      <div class="mt-4 p-3 rounded-2xl bg-brandDark/50 border border-white/5 text-xs text-slate-300 space-y-1.5">
+        <div class="font-bold text-slate-200 mb-1 flex items-center gap-1.5">
+          <i class="ph-bold ph-calendar-check text-duo"></i> Твоя система занятий:
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-duo font-semibold">Пн, Ср, Пт:</span>
+          <span>Duolingo (Словарный запас, квесты)</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-red-400 font-semibold">Вт, Чт:</span>
+          <span>BBC Learning English (Грамматика, Аудио)</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-busuu font-semibold">Суббота:</span>
+          <span>Busuu English (Комплексный урок, диалоги)</span>
+        </div>
+        <div class="flex justify-between text-[11px]">
+          <span class="text-purple-400 font-semibold">Воскресенье:</span>
+          <span>Speaking & Свободное повторение недели</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-between pt-3 border-t border-white/10">
+        <button onclick="confirmResetAll()" class="text-xs text-red-400/80 hover:text-red-400 flex items-center gap-1">
+          <i class="ph-bold ph-arrow-counter-clockwise"></i> Сбросить данные
+        </button>
+        <button onclick="closeStatsModal()" class="px-5 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-800/95 border border-white/10 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
+    <i id="toastIcon" class="ph-fill ph-check-circle text-duo text-base"></i>
+    <span id="toastMsg">Успешно сохранено!</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    /* -------------------------------------------------------------
+       CONFIG & THEMES FOR SCHEDULE
+    ------------------------------------------------------------- */
+    const DAYS_CONFIG = [
+      {
+        dayIndex: 1, // Monday
+        name: "Понедельник",
+        shortName: "ПН",
+        app: "Duolingo",
+        tag: "Геймификация & Ударный режим",
+        theme: "duo",
+        icon: "ph-bird",
+        link: "https://www.duolingo.com",
+        bgClass: "from-emerald-950/60 to-duo/10",
+        borderClass: "border-duo/30",
+        badgeBg: "bg-duo/15 text-duo border-duo/30",
+        btnColor: "bg-duo text-black hover:bg-duoDark",
+        glowClass: "glow-duo"
+      },
+      {
+        dayIndex: 2, // Tuesday
+        name: "Вторник",
+        shortName: "ВТ",
+        app: "BBC English",
+        tag: "6 Minute English & Грамматика",
+        theme: "bbc",
+        icon: "ph-broadcast",
+        link: "https://www.bbc.co.uk/learningenglish",
+        bgClass: "from-red-950/60 to-bbc/10",
+        borderClass: "border-bbc/40",
+        badgeBg: "bg-bbc/20 text-red-400 border-bbc/40",
+        btnColor: "bg-bbc text-white hover:bg-bbcLight",
+        glowClass: "glow-bbc"
+      },
+      {
+        dayIndex: 3, // Wednesday
+        name: "Среда",
+        shortName: "СР",
+        app: "Duolingo",
+        tag: "Повторение & Лиги Duolingo",
+        theme: "duo",
+        icon: "ph-bird",
+        link: "https://www.duolingo.com",
+        bgClass: "from-emerald-950/60 to-duo/10",
+        borderClass: "border-duo/30",
+        badgeBg: "bg-duo/15 text-duo border-duo/30",
+        btnColor: "bg-duo text-black hover:bg-duoDark",
+        glowClass: "glow-duo"
+      },
+      {
+        dayIndex: 4, // Thursday
+        name: "Четверг",
+        shortName: "ЧТ",
+        app: "BBC English",
+        tag: "News Review & Произношение",
+        theme: "bbc",
+        icon: "ph-broadcast",
+        link: "https://www.bbc.co.uk/learningenglish",
+        bgClass: "from-red-950/60 to-bbc/10",
+        borderClass: "border-bbc/40",
+        badgeBg: "bg-bbc/20 text-red-400 border-bbc/40",
+        btnColor: "bg-bbc text-white hover:bg-bbcLight",
+        glowClass: "glow-bbc"
+      },
+      {
+        dayIndex: 5, // Friday
+        name: "Пятница",
+        shortName: "ПТ",
+        app: "Duolingo",
+        tag: "Закрепление недели & Истории",
+        theme: "duo",
+        icon: "ph-bird",
+        link: "https://www.duolingo.com",
+        bgClass: "from-emerald-950/60 to-duo/10",
+        borderClass: "border-duo/30",
+        badgeBg: "bg-duo/15 text-duo border-duo/30",
+        btnColor: "bg-duo text-black hover:bg-duoDark",
+        glowClass: "glow-duo"
+      },
+      {
+        dayIndex: 6, // Saturday
+        name: "Суббота",
+        shortName: "СБ",
+        app: "Busuu English",
+        tag: "Урок с носителями & Письмо",
+        theme: "busuu",
+        icon: "ph-chats-circle",
+        link: "https://www.busuu.com",
+        bgClass: "from-blue-950/60 to-busuu/10",
+        borderClass: "border-busuu/40",
+        badgeBg: "bg-busuu/20 text-busuu border-busuu/40",
+        btnColor: "bg-busuu text-white hover:bg-busuuDark",
+        glowClass: "glow-busuu"
+      },
+      {
+        dayIndex: 0, // Sunday
+        name: "Воскресенье",
+        shortName: "ВС",
+        app: "Speaking & Review",
+        tag: "Разговорная практика / Отдых",
+        theme: "sunday",
+        icon: "ph-headphones",
+        link: "https://www.youtube.com/results?search_query=english+listening+practice",
+        bgClass: "from-purple-950/60 to-sunday/10",
+        borderClass: "border-sunday/40",
+        badgeBg: "bg-sunday/20 text-purple-300 border-sunday/40",
+        btnColor: "bg-sunday text-white hover:bg-purple-600",
+        glowClass: "glow-sunday"
+      }
+    ];
+
+    const MOTIVATIONAL_QUOTES = [
+      "«Little by little, a little becomes a lot.»",
+      "«Consistency is the key to mastering English!»",
+      "«Don't stop until you're proud. You're doing amazing.»",
+      "«15 minutes a day beats 3 hours once a week.»",
+      "«Language is not a talent, it's a habit.»"
+    ];
+
+    /* -------------------------------------------------------------
+       STATE MANAGEMENT
+    ------------------------------------------------------------- */
+    const STORAGE_KEY = 'eng_habit_tracker_data_v1';
+    let currentWeekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
+    let activeEditingKey = null;
+
+    // Load or initialize App Data
+    function getAppData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { completedDays: {}, notes: {} };
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error("Storage error:", e);
+        return { completedDays: {}, notes: {} };
+      }
+    }
+
+    function saveAppData(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error("Failed to save data:", e);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       DATE HELPERS
+    ------------------------------------------------------------- */
+    // Helper to format Date to 'YYYY-MM-DD'
+    function formatDateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Get Monday of the week with an offset
+    function getMondayOfWeek(offsetWeeks = 0) {
+      const now = new Date();
+      const day = now.getDay(); // 0 is Sun, 1 is Mon...
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday + (offsetWeeks * 7));
+      monday.setHours(0, 0, 0, 0);
+      return monday;
+    }
+
+    // Get all 7 days of the week starting Monday
+    function getDaysOfTargetWeek(offsetWeeks = 0) {
+      const monday = getMondayOfWeek(offsetWeeks);
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        // Find configuration: Monday is 1, Sun is 0
+        const jsDayIndex = d.getDay();
+        const conf = DAYS_CONFIG.find(c => c.dayIndex === jsDayIndex);
+        days.push({
+          date: d,
+          dateKey: formatDateKey(d),
+          config: conf,
+          isToday: formatDateKey(d) === formatDateKey(new Date())
+        });
+      }
+      return days;
+    }
+
+    /* -------------------------------------------------------------
+       STREAK CALCULATION
+    ------------------------------------------------------------- */
+    function calculateStreak() {
+      const data = getAppData();
+      const today = new Date();
+      let streak = 0;
+      let checkDate = new Date(today);
+
+      const todayKey = formatDateKey(checkDate);
+      const todayCompleted = !!data.completedDays[todayKey];
+
+      // If today is completed, streak includes today.
+      // If not completed today yet, check starting yesterday so streak isn't lost during the day!
+      if (!todayCompleted) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+
+      while (true) {
+        const key = formatDateKey(checkDate);
+        if (data.completedDays[key]) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return streak;
+    }
+
+    /* -------------------------------------------------------------
+       SOUND & HAPTIC FEEDBACK
+    ------------------------------------------------------------- */
+    function triggerHaptic() {
+      if (window.navigator && window.navigator.vibrate) {
+        try {
+          window.navigator.vibrate([30, 20, 50]);
+        } catch (e) {
+          // Ignore
+        }
+      }
+    }
+
+    function fireConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 55,
+          spread: 60,
+          origin: { y: 0.7 },
+          colors: ['#58CC02', '#2486FF', '#BB1919', '#FBBF24']
+        });
+      }
+    }
+
+    function showToast(message, iconClass = "ph-check-circle") {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = message;
+      toastIcon.className = `ph-fill ${iconClass} text-duo text-base`;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+        toast.classList.remove('opacity-100');
+      }, 2300);
+    }
+
+    /* -------------------------------------------------------------
+       CORE RENDERING
+    ------------------------------------------------------------- */
+    function renderApp() {
+      const data = getAppData();
+      const streak = calculateStreak();
+      const streakEl = document.getElementById('streakCount');
+      if (streakEl) streakEl.textContent = streak;
+
+      // Render today hero banner
+      renderTodayBanner(data);
+
+      // Render current week dates and cards
+      renderWeekSection(data);
+
+      // Rotate quote
+      const quoteEl = document.getElementById('motivationalQuote');
+      if (quoteEl) {
+        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        quoteEl.textContent = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
+      }
+    }
+
+    // Render Hero Card for Today
+    function renderTodayBanner(data) {
+      const today = new Date();
+      const todayKey = formatDateKey(today);
+      const todayConfig = DAYS_CONFIG.find(c => c.dayIndex === today.getDay());
+      const isCompleted = !!data.completedDays[todayKey];
+
+      const todayCard = document.getElementById('todayCard');
+      const todayHeroBg = document.getElementById('todayHeroBg');
+      const todayLabelBadge = document.getElementById('todayLabelBadge');
+      const todayTitle = document.getElementById('todayTitle');
+      const todayFocus = document.getElementById('todayFocus');
+      const todayAppIcon = document.getElementById('todayAppIcon');
+      const todayAppText = document.getElementById('todayAppText');
+      const todayCheckBtn = document.getElementById('todayCheckBtn');
+      const todayCheckIcon = document.getElementById('todayCheckIcon');
+      const todayStatusText = document.getElementById('todayStatusText');
+      const todayDirectLink = document.getElementById('todayDirectLink');
+
+      // Theme styling application
+      todayCard.className = `mt-4 p-5 rounded-3xl relative overflow-hidden transition-all duration-300 border bg-gradient-to-br ${todayConfig.bgClass} ${todayConfig.borderClass} ${todayConfig.glowClass}`;
+      todayHeroBg.className = `absolute -right-6 -bottom-6 w-32 h-32 opacity-15 rounded-full pointer-events-none ${todayConfig.theme === 'duo' ? 'bg-duo' : todayConfig.theme === 'bbc' ? 'bg-bbc' : todayConfig.theme === 'busuu' ? 'bg-busuu' : 'bg-sunday'}`;
+
+      todayLabelBadge.className = `px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase rounded-full border ${todayConfig.badgeBg}`;
+      todayTitle.innerText = `${todayConfig.name}, ${today.getDate()} ${today.toLocaleDateString('ru-RU', { month: 'short' })}`;
+      todayAppIcon.innerHTML = `<i class="ph-bold ${todayConfig.icon} text-base"></i>`;
+      todayAppText.innerText = `${todayConfig.app} • ${todayConfig.tag}`;
+      todayDirectLink.href = todayConfig.link;
+      todayDirectLink.className = `flex items-center gap-1 font-semibold hover:underline ${todayConfig.theme === 'duo' ? 'text-duo' : todayConfig.theme === 'bbc' ? 'text-red-400' : todayConfig.theme === 'busuu' ? 'text-busuu' : 'text-purple-300'}`;
+
+      if (isCompleted) {
+        todayCheckBtn.className = "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200 bg-emerald-500 text-black";
+        todayCheckIcon.className = "ph-bold ph-check-fat text-2xl animate-bounce";
+        todayStatusText.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i class="ph-fill ph-check-circle"></i> Задание на сегодня выполнено!</span>`;
+      } else {
+        todayCheckBtn.className = `relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200 ${todayConfig.btnColor}`;
+        todayCheckIcon.className = "ph-bold ph-check text-2xl";
+        todayStatusText.innerText = "Статус: Еще не выполнено";
+      }
+    }
+
+    // Render target week list & progress circle
+    function renderWeekSection(data) {
+      const weekDays = getDaysOfTargetWeek(currentWeekOffset);
+      const listContainer = document.getElementById('weekDaysList');
+      listContainer.innerHTML = '';
+
+      let completedCount = 0;
+
+      // Update Week Title Range
+      const firstDay = weekDays[0].date;
+      const lastDay = weekDays[6].date;
+      const rangeText = `${firstDay.getDate()} ${firstDay.toLocaleDateString('ru-RU', { month: 'short' })} — ${lastDay.getDate()} ${lastDay.toLocaleDateString('ru-RU', { month: 'short' })}`;
+      document.getElementById('currentWeekRange').innerText = rangeText;
+
+      const weekLabelName = document.getElementById('selectedWeekName');
+      const currentIndicator = document.getElementById('currentWeekIndicatorBtn');
+      if (currentWeekOffset === 0) {
+        weekLabelName.innerText = "Текущая неделя";
+        currentIndicator.className = "px-2 text-[11px] font-bold text-duo";
+      } else if (currentWeekOffset === -1) {
+        weekLabelName.innerText = "Прошлая неделя";
+        currentIndicator.className = "px-2 text-[11px] font-semibold text-slate-300 hover:text-white";
+      } else {
+        weekLabelName.innerText = currentWeekOffset > 0 ? `+${currentWeekOffset} нед.` : `${currentWeekOffset} нед.`;
+        currentIndicator.className = "px-2 text-[11px] font-semibold text-slate-300 hover:text-white";
+      }
+
+      // Populate cards for each day
+      weekDays.forEach(item => {
+        const isCompleted = !!data.completedDays[item.dateKey];
+        if (isCompleted) completedCount++;
+
+        const note = data.notes[item.dateKey] || '';
+
+        const card = document.createElement('div');
+        card.className = `group glass-card rounded-2xl p-3.5 transition-all duration-200 border ${
+          item.isToday ? 'border-white/30 bg-surface/90 shadow-lg' : 'hover:border-white/20'
+        }`;
+
+        // Color badge based on service
+        let tagColor = 'text-slate-400 bg-slate-800';
+        if (item.config.theme === 'duo') tagColor = 'text-duo bg-duo/10 border border-duo/20';
+        if (item.config.theme === 'bbc') tagColor = 'text-red-400 bg-bbc/10 border border-bbc/20';
+        if (item.config.theme === 'busuu') tagColor = 'text-busuu bg-busuu/10 border border-busuu/20';
+        if (item.config.theme === 'sunday') tagColor = 'text-purple-400 bg-sunday/10 border border-sunday/20';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3 min-w-0">
+              <!-- Checkbox button -->
+              <button onclick="toggleDayCompletion('${item.dateKey}')" class="w-9 h-9 rounded-xl flex items-center justify-center transition-transform active:scale-90 flex-shrink-0 ${
+                isCompleted 
+                  ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20' 
+                  : 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300 border border-white/5'
+              }">
+                <i class="ph-bold ${isCompleted ? 'ph-check-bold text-lg' : 'ph-circle text-base'}"></i>
+              </button>
+
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm ${item.isToday ? 'text-white' : 'text-slate-200'}">
+                    ${item.config.shortName}, ${item.date.getDate()}
+                  </span>
+                  ${item.isToday ? '<span class="px-1.5 py-0.2 bg-duo text-black font-extrabold text-[9px] rounded uppercase">Сегодня</span>' : ''}
+                </div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${tagColor}">
+                    ${item.config.app}
+                  </span>
+                  <span class="text-[11px] text-slate-400 truncate hidden xs:inline">${item.config.tag}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions: Notes & App Link -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button onclick="openNoteModal('${item.dateKey}', '${item.config.name}')" class="w-8 h-8 rounded-lg flex items-center justify-center transition active:scale-90 ${
+                note ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'bg-slate-800/80 hover:bg-slate-700 text-slate-400'
+              }" title="Заметки">
+                <i class="ph-bold ${note ? 'ph-note-pencil' : 'ph-notepad'} text-sm"></i>
+              </button>
+
+              <a href="${item.config.link}" target="_blank" rel="noopener" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-90" title="Открыть платформу">
+                <i class="ph-bold ph-arrow-square-out text-sm"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Note Preview if exists -->
+          ${note ? `
+            <div onclick="openNoteModal('${item.dateKey}', '${item.config.name}')" class="mt-2.5 pt-2 border-t border-white/5 text-[11px] text-slate-300 italic flex items-center gap-1.5 cursor-pointer line-clamp-1 hover:text-duo transition">
+              <i class="ph-fill ph-push-pin text-amber-400 text-xs flex-shrink-0"></i>
+              <span class="truncate">${escapeHtml(note)}</span>
+            </div>
+          ` : ''}
+        `;
+
+        listContainer.appendChild(card);
+      });
+
+      // Update Circular Progress Bar
+      const totalDays = 7;
+      const percent = Math.round((completedCount / totalDays) * 100);
+      document.getElementById('weekFraction').innerText = `${completedCount}/${totalDays}`;
+      document.getElementById('weekPercent').innerText = `${percent}%`;
+
+      const circle = document.getElementById('weekProgressCircle');
+      const circumference = 2 * Math.PI * 18; // r = 18 => ~113.1
+      const offset = circumference - (percent / 100) * circumference;
+      circle.style.strokeDasharray = `${circumference} ${circumference}`;
+      circle.style.strokeDashoffset = offset;
+    }
+
+    /* -------------------------------------------------------------
+       INTERACTIONS & TOGGLES
+    ------------------------------------------------------------- */
+    function toggleTodayCompletion() {
+      const todayKey = formatDateKey(new Date());
+      toggleDayCompletion(todayKey);
+    }
+
+    function toggleDayCompletion(dateKey) {
+      const data = getAppData();
+      const currentVal = !data.completedDays[dateKey];
+
+      if (currentVal) {
+        data.completedDays[dateKey] = true;
+        triggerHaptic();
+        fireConfetti();
+        showToast("Отличная работа! День зачтен 🔥");
+      } else {
+        delete data.completedDays[dateKey];
+        showToast("Отметка снята", "ph-x-circle");
+      }
+
+      saveAppData(data);
+      renderApp();
+    }
+
+    function changeWeekOffset(delta) {
+      currentWeekOffset += delta;
+      renderApp();
+    }
+
+    function resetToCurrentWeek() {
+      currentWeekOffset = 0;
+      renderApp();
+    }
+
+    /* -------------------------------------------------------------
+       NOTES MODAL
+    ------------------------------------------------------------- */
+    function openNoteModal(dateKey, dayName) {
+      activeEditingKey = dateKey;
+      const data = getAppData();
+      const existingNote = data.notes[dateKey] || '';
+
+      const modal = document.getElementById('noteModal');
+      document.getElementById('noteModalDayTitle').innerText = `Заметка: ${dayName} (${dateKey})`;
+      document.getElementById('noteInput').value = existingNote;
+
+      modal.classList.remove('hidden');
+      setTimeout(() => document.getElementById('noteInput').focus(), 100);
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.add('hidden');
+      activeEditingKey = null;
+    }
+
+    function saveCurrentNote() {
+      if (!activeEditingKey) return;
+      const text = document.getElementById('noteInput').value.trim();
+      const data = getAppData();
+
+      if (text) {
+        data.notes[activeEditingKey] = text;
+        showToast("Заметка сохранена!");
+      } else {
+        delete data.notes[activeEditingKey];
+        showToast("Заметка удалена");
+      }
+
+      saveAppData(data);
+      closeNoteModal();
+      renderApp();
+    }
+
+    function deleteCurrentNote() {
+      if (!activeEditingKey) return;
+      const data = getAppData();
+      delete data.notes[activeEditingKey];
+      saveAppData(data);
+      document.getElementById('noteInput').value = '';
+      closeNoteModal();
+      showToast("Заметка удалена");
+      renderApp();
+    }
+
+    /* -------------------------------------------------------------
+       STATISTICS MODAL
+    ------------------------------------------------------------- */
+    function openStatsModal() {
+      const data = getAppData();
+      const totalCompleted = Object.keys(data.completedDays).length;
+      const streak = calculateStreak();
+      const totalNotes = Object.keys(data.notes).length;
+
+      // Current week calculations
+      const weekDays = getDaysOfTargetWeek(0);
+      let thisWeekCompleted = 0;
+      weekDays.forEach(d => {
+        if (data.completedDays[d.dateKey]) thisWeekCompleted++;
+      });
+      const weekRate = Math.round((thisWeekCompleted / 7) * 100);
+
+      document.getElementById('statsTotalCompleted').innerText = totalCompleted;
+      document.getElementById('statsStreakDays').innerText = `${streak} дн.`;
+      document.getElementById('statsWeekRate').innerText = `${weekRate}%`;
+      document.getElementById('statsWeekDaysCount').innerText = `${thisWeekCompleted} из 7 дней`;
+      document.getElementById('statsTotalNotes').innerText = totalNotes;
+
+      document.getElementById('statsModal').classList.remove('hidden');
+    }
+
+    function closeStatsModal() {
+      document.getElementById('statsModal').classList.add('hidden');
+    }
+
+    function confirmResetAll() {
+      const confirmBox = document.createElement('div');
+      confirmBox.className = "fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4";
+      confirmBox.innerHTML = `
+        <div class="bg-surface p-5 rounded-2xl max-w-xs w-full text-center border border-red-500/30">
+          <i class="ph-bold ph-warning-circle text-red-500 text-3xl"></i>
+          <h5 class="text-base font-bold text-white mt-2">Сбросить все данные?</h5>
+          <p class="text-xs text-slate-400 mt-1">Все отметки выполнения и сохраненные заметки будут очищены.</p>
+          <div class="mt-4 flex gap-2">
+            <button id="cancelResetBtn" class="flex-1 py-2 bg-slate-800 text-slate-300 font-semibold text-xs rounded-xl">Отмена</button>
+            <button id="okResetBtn" class="flex-1 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Сбросить</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(confirmBox);
+
+      document.getElementById('cancelResetBtn').onclick = () => confirmBox.remove();
+      document.getElementById('okResetBtn').onclick = () => {
+        localStorage.removeItem(STORAGE_KEY);
+        confirmBox.remove();
+        closeStatsModal();
+        showToast("Все данные сброшены");
+        renderApp();
+      };
+    }
+
+    /* -------------------------------------------------------------
+       UTILITIES
+    ------------------------------------------------------------- */
+    function escapeHtml(string) {
+      const div = document.createElement('div');
+      div.innerText = string;
+      return div.innerHTML;
+    }
+
+    // Modal click out to close
+    window.addEventListener('click', (e) => {
+      const noteModal = document.getElementById('noteModal');
+      const statsModal = document.getElementById('statsModal');
+      if (e.target === noteModal) closeNoteModal();
+      if (e.target === statsModal) closeStatsModal();
+    });
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+    });
+  </script>
+</body>
+</html>
