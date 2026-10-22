@@ -3,18 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>English Habit Tracker</title>
+  <title>LOG // POSTMODERN ENGLISH TRACKER</title>
   
-  <!-- Web App Meta for iOS / Android Home Screen -->
+  <!-- Web App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="EngTracker">
-  <meta name="theme-color" content="#090d16">
-  
-  <!-- Fonts & Tailwind CSS & Icons -->
+  <meta name="apple-mobile-web-app-title" content="LOG//ENG">
+  <meta name="theme-color" content="#0e0f12">
+
+  <!-- Fonts: Syne (Expressive Postmodern display) + Space Mono (Brutalist Technical Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
@@ -23,23 +25,24 @@
 
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Syne"', 'sans-serif'],
+            mono: ['"Space Mono"', 'monospace'],
           },
           colors: {
-            brandDark: '#080c14',
-            surface: '#111726',
-            surfaceLight: '#182138',
-            duo: '#58CC02',
-            duoDark: '#46a302',
-            bbc: '#BB1919',
-            bbcLight: '#d92727',
-            busuu: '#2486FF',
-            busuuDark: '#1367d8',
-            sunday: '#8B5CF6'
+            base: '#0e0f12',
+            surface: '#16181d',
+            surfaceElevated: '#1e2127',
+            edge: '#2d323b',
+            edgeStrong: '#444a56',
+            moss: '#9ebc3a',
+            rust: '#b8523a',
+            ochre: '#cfa24b',
+            ice: '#7798a6',
+            ink: '#dcd8cf',
+            dim: '#767c88'
           }
         }
       }
@@ -47,892 +50,874 @@
   </script>
 
   <style>
-    /* iOS Safe area padding & smooth scroll */
     :root {
       --sat: env(safe-area-inset-top, 0px);
       --sab: env(safe-area-inset-bottom, 0px);
     }
     body {
-      padding-top: var(--sat);
-      padding-bottom: calc(var(--sab) + 16px);
+      background-color: #0e0f12;
+      color: #dcd8cf;
+      padding-top: max(var(--sat), 12px);
+      padding-bottom: max(calc(var(--sab) + 36px), 48px);
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      background-color: #080c14;
-    }
-    
-    /* Glass card styles */
-    .glass-card {
-      background: rgba(17, 23, 38, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .glow-duo {
-      box-shadow: 0 0 25px -5px rgba(88, 204, 2, 0.35);
-    }
-    .glow-bbc {
-      box-shadow: 0 0 25px -5px rgba(187, 25, 25, 0.35);
-    }
-    .glow-busuu {
-      box-shadow: 0 0 25px -5px rgba(36, 134, 255, 0.35);
-    }
-    .glow-sunday {
-      box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.35);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 0),
+        linear-gradient(to bottom, rgba(14, 15, 18, 0.96), #0e0f12);
+      background-size: 20px 20px, 100% 100%;
     }
 
-    /* Circular Progress */
-    .circle-bg {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.08);
-      stroke-width: 3.5;
+    /* Postmodern Offset Brutalist Shadows */
+    .pm-shadow {
+      box-shadow: 4px 4px 0px 0px #000000;
     }
-    .circle-progress {
-      fill: none;
-      stroke-width: 3.8;
-      stroke-linecap: round;
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-      transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    .pm-shadow-sm {
+      box-shadow: 2px 2px 0px 0px #000000;
+    }
+    .pm-shadow-rust {
+      box-shadow: 4px 4px 0px 0px #b8523a;
+    }
+    .pm-shadow-moss {
+      box-shadow: 4px 4px 0px 0px #9ebc3a;
     }
 
-    /* Custom scrollbar for notes text */
-    textarea::-webkit-scrollbar {
-      width: 4px;
+    /* Industrial Stamped Seal Animation */
+    @keyframes stampDown {
+      0% { transform: scale(1.4) rotate(-14deg); opacity: 0; }
+      55% { transform: scale(0.94) rotate(4deg); opacity: 0.9; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    textarea::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
+    .stamp-sealed {
+      animation: stampDown 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    /* Asymmetric diagonal bar */
+    .diagonal-hatch {
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.04) 6px,
+        transparent 6px,
+        transparent 12px
+      );
+    }
+
+    /* Technical grid hairline borders */
+    .hairline-b {
+      border-bottom: 1px dashed #2d323b;
+    }
+    .hairline-r {
+      border-right: 1px dashed #2d323b;
     }
   </style>
 </head>
 
-<body class="text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-duo selection:text-black">
+<body class="font-mono text-sm antialiased overflow-x-hidden selection:bg-rust selection:text-white">
 
-  <!-- Main Container (Mobile Max Width) -->
-  <div class="w-full max-w-md mx-auto flex-1 flex flex-col px-4 pt-3 pb-8">
+  <!-- Mobile Outer Wrap -->
+  <div class="relative w-full max-w-md mx-auto px-4 flex flex-col">
 
-    <!-- Header: App Name, Streak & Stats Button -->
-    <header class="flex items-center justify-between py-2">
-      <div class="flex items-center space-x-2">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-duo to-emerald-400 flex items-center justify-center shadow-lg shadow-duo/20">
-          <i class="ph-bold ph-translate text-black text-xl"></i>
-        </div>
+    <!-- Top Postmodern Header / Manifest -->
+    <header class="pt-2 pb-4 border-b-2 border-edge relative">
+      <div class="flex items-center justify-between text-[10px] tracking-widest text-dim uppercase">
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-rust inline-block"></span>
+          NO. 084 // VER. 3.4
+        </span>
+        <span class="font-bold text-moss">ONE-WAY PROTOCOL</span>
+      </div>
+
+      <div class="mt-2.5 flex items-baseline justify-between">
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-white leading-tight">English Daily</h1>
-          <p class="text-[11px] text-slate-400 font-medium">Твой путь к C1</p>
+          <h1 class="font-display font-black text-2xl tracking-tight leading-none text-ink uppercase flex items-center gap-1">
+            HABIT<span class="text-rust">.LOG</span>
+          </h1>
+          <p class="text-[11px] text-dim font-mono tracking-tight mt-0.5">IRREVERSIBLE ENGLISH TRACKER</p>
+        </div>
+
+        <!-- Discipline / Streak Badge -->
+        <div class="bg-surfaceElevated border border-edgeStrong px-3 py-1.5 pm-shadow-sm flex items-center gap-2">
+          <span class="text-[9px] uppercase tracking-wider text-dim">STREAK</span>
+          <span id="streakDisplay" class="font-display font-black text-lg text-ochre leading-none">0</span>
+          <span class="text-[9px] text-dim">DAYS</span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <!-- Streak Badge -->
-        <div id="streakBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 shadow-sm transition-transform active:scale-95">
-          <i class="ph-fill ph-fire text-lg text-orange-500 animate-pulse"></i>
-          <span id="streakCount" class="font-bold text-sm tracking-wide">0</span>
-          <span class="text-xs text-orange-300 font-medium hidden sm:inline">дн</span>
-        </div>
-
-        <!-- Info / Stats Button -->
-        <button onclick="openStatsModal()" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 text-slate-300 border border-white/5 flex items-center justify-center transition">
-          <i class="ph-bold ph-chart-bar text-base"></i>
-        </button>
+      <!-- Postmodern Asymmetric Ticker/Rule Banner -->
+      <div class="mt-3 py-1.5 px-2.5 bg-surface border-l-2 border-rust text-[10px] text-dim flex items-center justify-between leading-none">
+        <span class="tracking-wider text-ink/90 font-bold uppercase flex items-center gap-1">
+          <i class="ph-bold ph-lock-key text-rust"></i>
+          ЗАПЕЧАТАНО:
+        </span>
+        <span class="text-[9px] uppercase text-dim">ОТМЕТКА НЕОБРАТИМА</span>
       </div>
     </header>
 
-    <!-- Today's Hero Banner Card -->
-    <div id="todayCard" class="mt-4 p-5 rounded-3xl relative overflow-hidden transition-all duration-300">
-      <div class="absolute -right-6 -bottom-6 w-32 h-32 opacity-15 rounded-full pointer-events-none" id="todayHeroBg"></div>
-      
+    <!-- TODAY'S HERO CONSTRUCT (Deconstructed Brutalist Card) -->
+    <section class="mt-4 bg-surface border-2 border-edgeStrong p-4 pm-shadow relative overflow-hidden">
+      <!-- Background diagonal hatch accent -->
+      <div class="absolute -right-8 -top-8 w-32 h-32 diagonal-hatch pointer-events-none opacity-40"></div>
+
       <div class="flex items-start justify-between relative z-10">
         <div>
-          <span id="todayLabelBadge" class="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase rounded-full border">
-            СЕГОДНЯ
-          </span>
-          <h2 id="todayTitle" class="text-2xl font-extrabold mt-1 text-white tracking-tight">Понедельник</h2>
-          <p id="todayFocus" class="text-sm font-medium mt-0.5 flex items-center gap-1.5 opacity-90">
-            <span id="todayAppIcon"></span>
-            <span id="todayAppText">Duolingo Focus</span>
-          </p>
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-edge text-ink">
+              TODAY FOCUS
+            </span>
+            <span id="heroDateLabel" class="text-[10px] text-dim tracking-mono uppercase">21 OCT / СЕГОДНЯ</span>
+          </div>
+
+          <h2 id="heroDayTitle" class="font-display font-black text-2xl uppercase tracking-tight text-ink mt-2 leading-tight">
+            MONDAY
+          </h2>
+
+          <div class="mt-1.5 flex items-center gap-2">
+            <span id="heroPlatformBadge" class="text-xs font-bold px-2 py-0.5 bg-rust/20 border border-rust text-rust uppercase tracking-wider">
+              DUOLINGO
+            </span>
+            <span id="heroFocusTopic" class="text-[11px] text-dim truncate max-w-[140px]">Ударный режим</span>
+          </div>
         </div>
 
-        <!-- Check Button for Today -->
-        <button id="todayCheckBtn" onclick="toggleTodayCompletion()" class="relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200">
-          <i id="todayCheckIcon" class="ph-bold ph-check text-2xl"></i>
-        </button>
+        <!-- Huge Brutalist Check / Stamp Target -->
+        <div class="flex flex-col items-center">
+          <button 
+            id="heroActionBtn"
+            onclick="attemptSealDay(getTodayDateKey())" 
+            class="w-16 h-16 bg-surfaceElevated border-2 border-edgeStrong hover:border-ink text-ink flex items-center justify-center pm-shadow transition-transform active:translate-x-0.5 active:translate-y-0.5 relative group"
+          >
+            <i id="heroActionIcon" class="ph-bold ph-seal-check text-2xl text-rust"></i>
+          </button>
+          <span id="heroActionSub" class="text-[9px] text-dim uppercase tracking-widest mt-1.5 font-bold">
+            SEAL
+          </span>
+        </div>
       </div>
 
-      <div class="mt-4 pt-3.5 border-t border-white/10 flex items-center justify-between text-xs">
-        <span id="todayStatusText" class="text-slate-300 font-medium">Статус: Еще не выполнено</span>
-        <a id="todayDirectLink" href="#" target="_blank" rel="noopener" class="flex items-center gap-1 font-semibold hover:underline">
-          <span>Открыть урок</span>
+      <!-- Card Sub-Footer & Direct Jump -->
+      <div class="mt-4 pt-3 hairline-b flex items-center justify-between text-xs relative z-10">
+        <div id="heroStatusText" class="text-[11px] font-bold text-dim flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-ochre/80 inline-block animate-pulse"></span>
+          <span>ОЖИДАЕТ ВЫПОЛНЕНИЯ</span>
+        </div>
+        <a id="heroDirectLink" href="#" target="_blank" rel="noopener" class="text-[11px] font-bold text-moss hover:underline flex items-center gap-1 uppercase tracking-wider">
+          <span>ОТКРЫТЬ</span>
           <i class="ph-bold ph-arrow-up-right text-xs"></i>
         </a>
       </div>
-    </div>
+    </section>
 
-    <!-- Week Navigator & Weekly Progress Stats -->
-    <div class="mt-5 glass-card rounded-2xl p-4 flex items-center justify-between">
-      <div class="flex items-center space-x-3.5">
-        <!-- SVG Progress Ring -->
-        <div class="relative w-14 h-14 flex items-center justify-center">
-          <svg class="w-14 h-14" viewBox="0 0 44 44">
-            <circle class="circle-bg" cx="22" cy="22" r="18" />
-            <circle id="weekProgressCircle" class="circle-progress stroke-duo" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="113.1" />
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span id="weekPercent" class="text-xs font-bold text-white">0%</span>
-          </div>
-        </div>
-        
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 id="currentWeekRange" class="font-bold text-sm text-slate-100">Текущая неделя</h3>
-          </div>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Выполнено <strong id="weekFraction" class="text-white">0/7</strong> дней
-          </p>
-        </div>
+    <!-- Platform Fast-Routing Hub (Postmodern Raw Grid) -->
+    <section class="mt-4">
+      <div class="flex items-center justify-between text-[10px] text-dim uppercase tracking-wider mb-1.5 px-0.5">
+        <span>[ DIRECT PROTOCOLS ]</span>
+        <span>JUMP & TRAIN</span>
       </div>
 
-      <!-- Week Switcher -->
-      <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-white/5">
-        <button onclick="changeWeekOffset(-1)" class="w-7 h-7 rounded-lg hover:bg-slate-700 active:scale-90 flex items-center justify-center text-slate-300" title="Прошлая неделя">
-          <i class="ph-bold ph-caret-left text-sm"></i>
-        </button>
-        <button onclick="resetToCurrentWeek()" id="currentWeekIndicatorBtn" class="px-2 text-[11px] font-semibold text-slate-300 hover:text-white" title="Вернуться к сегодня">
-          Сегодня
-        </button>
-        <button onclick="changeWeekOffset(1)" class="w-7 h-7 rounded-lg hover:bg-slate-700 active:scale-90 flex items-center justify-center text-slate-300" title="Следующая неделя">
-          <i class="ph-bold ph-caret-right text-sm"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Quick Action Launchers (Apps Bar) -->
-    <div class="mt-4">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1 flex items-center justify-between">
-        <span>Быстрый запуск сервисов</span>
-        <span class="text-[10px] text-slate-500 font-normal">тап для открытия</span>
-      </div>
       <div class="grid grid-cols-3 gap-2">
         <!-- Duolingo -->
-        <a href="https://www.duolingo.com" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-duo/30 flex items-center gap-2 transition active:scale-95 group">
-          <div class="w-7 h-7 rounded-lg bg-duo/20 text-duo flex items-center justify-center group-hover:scale-105 transition-transform">
-            <i class="ph-bold ph-bird text-base"></i>
+        <a href="https://www.duolingo.com" target="_blank" rel="noopener" class="bg-surface hover:bg-surfaceElevated border border-edgeStrong p-2.5 pm-shadow-sm flex flex-col justify-between transition-transform active:translate-y-0.5 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] font-bold tracking-widest text-moss">MON/WED/FRI</span>
+            <i class="ph-bold ph-arrow-up-right text-dim group-hover:text-ink text-xs"></i>
           </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate text-slate-100">Duolingo</div>
-            <div class="text-[10px] text-slate-400">Пн, Ср, Пт</div>
-          </div>
+          <div class="mt-2 font-display font-black text-sm text-ink uppercase tracking-tight">DUOLINGO</div>
+          <span class="text-[9px] text-dim mt-0.5">Vocab / Leagues</span>
         </a>
 
-        <!-- BBC Learning English -->
-        <a href="https://www.bbc.co.uk/learningenglish" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-bbc/30 flex items-center gap-2 transition active:scale-95 group">
-          <div class="w-7 h-7 rounded-lg bg-bbc/20 text-red-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <i class="ph-bold ph-broadcast text-base"></i>
+        <!-- BBC English -->
+        <a href="https://www.bbc.co.uk/learningenglish" target="_blank" rel="noopener" class="bg-surface hover:bg-surfaceElevated border border-edgeStrong p-2.5 pm-shadow-sm flex flex-col justify-between transition-transform active:translate-y-0.5 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] font-bold tracking-widest text-rust">TUE/THU</span>
+            <i class="ph-bold ph-arrow-up-right text-dim group-hover:text-ink text-xs"></i>
           </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate text-slate-100">BBC Eng</div>
-            <div class="text-[10px] text-slate-400">Вт, Чт</div>
-          </div>
+          <div class="mt-2 font-display font-black text-sm text-ink uppercase tracking-tight">BBC ENG</div>
+          <span class="text-[9px] text-dim mt-0.5">Audio & News</span>
         </a>
 
         <!-- Busuu -->
-        <a href="https://www.busuu.com" target="_blank" rel="noopener" class="glass-card hover:bg-slate-800/60 p-2.5 rounded-xl border border-busuu/30 flex items-center gap-2 transition active:scale-95 group">
-          <div class="w-7 h-7 rounded-lg bg-busuu/20 text-busuu flex items-center justify-center group-hover:scale-105 transition-transform">
-            <i class="ph-bold ph-chats-circle text-base"></i>
+        <a href="https://www.busuu.com" target="_blank" rel="noopener" class="bg-surface hover:bg-surfaceElevated border border-edgeStrong p-2.5 pm-shadow-sm flex flex-col justify-between transition-transform active:translate-y-0.5 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] font-bold tracking-widest text-ice">SATURDAY</span>
+            <i class="ph-bold ph-arrow-up-right text-dim group-hover:text-ink text-xs"></i>
           </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate text-slate-100">Busuu</div>
-            <div class="text-[10px] text-slate-400">Суббота</div>
-          </div>
+          <div class="mt-2 font-display font-black text-sm text-ink uppercase tracking-tight">BUSUU</div>
+          <span class="text-[9px] text-dim mt-0.5">Grammar Native</span>
         </a>
       </div>
-    </div>
+    </section>
 
-    <!-- Days of Week Cards List -->
-    <div class="mt-5 flex-1">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5 px-1 flex items-center justify-between">
-        <span>План по дням недели</span>
-        <span id="selectedWeekName" class="text-[11px] text-duo font-semibold">Неделя 1</span>
-      </div>
-
-      <div id="weekDaysList" class="space-y-2.5">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-
-    <!-- Footer Advice / Tip -->
-    <div class="mt-6 p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-850 border border-white/5 flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-amber-400/10 text-amber-300 flex items-center justify-center flex-shrink-0">
-        <i class="ph-fill ph-lightbulb text-lg"></i>
-      </div>
-      <p id="motivationalQuote" class="text-xs text-slate-300 italic leading-snug">
-        «Small daily habits lead to massive fluency over time.»
-      </p>
-    </div>
-
-  </div>
-
-  <!-- Note Editor Modal -->
-  <div id="noteModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center hidden p-0 sm:p-4 transition-opacity">
-    <div class="w-full max-w-md bg-surface border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl transform transition-transform">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+    <!-- Weekly Matrix & Postmodern Brutalist Meter -->
+    <section class="mt-5 bg-surface border border-edgeStrong p-3.5 pm-shadow-sm">
+      <div class="flex items-center justify-between">
         <div>
-          <h4 id="noteModalDayTitle" class="text-base font-bold text-white">Заметка к дню</h4>
-          <p id="noteModalSubTitle" class="text-xs text-slate-400">Слова, грамматика или заметка к уроку</p>
+          <span class="text-[9px] font-bold uppercase tracking-widest text-dim">WEEK DISCIPLINE</span>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span id="weekRatio" class="font-display font-black text-xl text-ink">0 / 7</span>
+            <span id="weekPercentText" class="text-xs text-moss font-bold">[ 0% ]</span>
+          </div>
         </div>
-        <button onclick="closeNoteModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="ph-bold ph-x text-sm"></i>
+
+        <!-- Week pagination controls -->
+        <div class="flex items-center gap-1">
+          <button onclick="shiftWeekOffset(-1)" class="w-7 h-7 bg-surfaceElevated border border-edge hover:border-ink text-ink flex items-center justify-center text-xs active:bg-black" title="Prev week">
+            <i class="ph-bold ph-caret-left"></i>
+          </button>
+          <button onclick="resetWeekOffset()" id="weekLabelBtn" class="px-2 h-7 bg-surfaceElevated border border-edge text-[9px] font-bold uppercase tracking-wider text-ink flex items-center justify-center">
+            THIS WEEK
+          </button>
+          <button onclick="shiftWeekOffset(1)" class="w-7 h-7 bg-surfaceElevated border border-edge hover:border-ink text-ink flex items-center justify-center text-xs active:bg-black" title="Next week">
+            <i class="ph-bold ph-caret-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Segmented Brutalist Progress Bar (7 blocks for 7 days) -->
+      <div id="brutalistSegments" class="mt-3 grid grid-cols-7 gap-1.5 h-3">
+        <!-- 7 blocks injected via JS -->
+      </div>
+    </section>
+
+    <!-- 7-Day Editorial List -->
+    <section class="mt-5">
+      <div class="flex items-center justify-between text-[10px] text-dim uppercase tracking-wider mb-2 px-1">
+        <span>// CALENDAR DEPLOYMENT</span>
+        <span id="calendarDateSpan" class="text-ink">19 OCT — 25 OCT</span>
+      </div>
+
+      <div id="weekDaysStack" class="space-y-2">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Postmodern Manifest / Quote Footer -->
+    <footer class="mt-6 p-3 bg-surface border border-edge text-dim text-xs flex items-start gap-2.5">
+      <span class="text-rust font-bold text-base leading-none">§</span>
+      <div>
+        <p id="quoteBox" class="text-[11px] leading-relaxed italic text-ink/80">
+          «The only irreversible constant is repetition. Seal each session in stone.»
+        </p>
+        <div class="mt-2 flex items-center justify-between text-[9px] text-dim border-t border-edge/60 pt-1.5 uppercase tracking-wider">
+          <span>POSTMODERN ENGLISH FRAMEWORK</span>
+          <button onclick="openStatsModal()" class="text-moss hover:underline font-bold">
+            [ VIEW STATS & HISTORY ]
+          </button>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- NOTE DRAWER / MODAL -->
+  <div id="noteModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="w-full max-w-md bg-surface border-2 border-edgeStrong p-5 pm-shadow relative">
+      <div class="flex items-center justify-between border-b border-edge pb-2.5">
+        <div>
+          <span class="text-[9px] uppercase tracking-widest text-rust font-bold">// ARCHIVE ENTRY</span>
+          <h3 id="noteModalTitle" class="font-display font-black text-lg text-ink uppercase mt-0.5">NOTES</h3>
+        </div>
+        <button onclick="closeNoteModal()" class="w-8 h-8 bg-surfaceElevated border border-edge hover:border-ink text-ink flex items-center justify-center text-sm">
+          <i class="ph-bold ph-x"></i>
         </button>
       </div>
 
-      <div class="mt-4">
-        <textarea id="noteInput" rows="5" class="w-full bg-brandDark/70 border border-white/10 rounded-2xl p-3.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-duo resize-none" placeholder="Например: Выучил 10 слов по теме Travel. Разобрал Present Perfect vs Past Simple..."></textarea>
+      <div class="mt-3">
+        <label class="text-[9px] uppercase tracking-widest text-dim block mb-1">
+          RECORD VOCABULARY & REFLECTIONS:
+        </label>
+        <textarea 
+          id="noteTextArea" 
+          rows="5" 
+          class="w-full bg-base border border-edge text-ink text-xs p-3 font-mono placeholder:text-dim/60 focus:outline-none focus:border-moss"
+          placeholder="e.g.&#10;• Obsolete — устаревший&#10;• Juxtapose — сопоставлять&#10;• BBC 6-Minute: AI in modern healthcare..."
+        ></textarea>
       </div>
 
-      <div class="mt-4 flex gap-2.5">
-        <button onclick="deleteCurrentNote()" class="px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition flex items-center gap-1.5">
-          <i class="ph-bold ph-trash"></i>
-          Удалить
+      <div class="mt-3 flex gap-2">
+        <button onclick="clearCurrentNote()" class="px-3 py-2 bg-surfaceElevated border border-edge text-dim hover:text-rust text-xs uppercase font-bold tracking-wider">
+          CLEAR
         </button>
-        <button onclick="saveCurrentNote()" class="flex-1 py-2.5 rounded-xl bg-duo hover:bg-duoDark active:scale-95 text-black font-bold text-xs tracking-wide transition shadow-lg shadow-duo/20 flex items-center justify-center gap-1.5">
-          <i class="ph-bold ph-floppy-disk text-base"></i>
-          Сохранить заметку
+        <button onclick="saveCurrentNote()" class="flex-1 py-2 bg-ink text-base hover:bg-white font-display font-black text-xs uppercase tracking-wider pm-shadow-sm active:translate-x-0.5 active:translate-y-0.5">
+          COMMIT TO LOG
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Detailed Stats Modal -->
-  <div id="statsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
-    <div class="w-full max-w-md bg-surface border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10">
-        <div class="flex items-center gap-2">
-          <i class="ph-fill ph-trophy text-amber-400 text-xl"></i>
-          <h4 class="text-base font-bold text-white">Статистика обучения</h4>
+  <!-- STATS MODAL -->
+  <div id="statsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+    <div class="w-full max-w-md bg-surface border-2 border-edgeStrong p-5 pm-shadow">
+      <div class="flex items-center justify-between border-b border-edge pb-2.5">
+        <div>
+          <span class="text-[9px] uppercase tracking-widest text-moss font-bold">// AGGREGATE METRICS</span>
+          <h3 class="font-display font-black text-lg text-ink uppercase mt-0.5">SYSTEM ARCHIVE</h3>
         </div>
-        <button onclick="closeStatsModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="ph-bold ph-x text-sm"></i>
+        <button onclick="closeStatsModal()" class="w-8 h-8 bg-surfaceElevated border border-edge hover:border-ink text-ink flex items-center justify-center text-sm">
+          <i class="ph-bold ph-x"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 mt-4">
-        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
-          <div class="text-[11px] text-slate-400 font-medium">Всего занятий</div>
-          <div id="statsTotalCompleted" class="text-2xl font-black text-white mt-1">0</div>
-          <div class="text-[10px] text-duo mt-0.5 flex items-center gap-1">
-            <i class="ph-bold ph-check-circle"></i> За все время
-          </div>
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <div class="bg-base border border-edge p-3">
+          <span class="text-[9px] uppercase tracking-wider text-dim block">SEALED SESSIONS</span>
+          <div id="statTotalSealed" class="font-display font-black text-2xl text-rust mt-1">0</div>
+          <span class="text-[9px] text-dim mt-0.5 block">IRREVERSIBLE</span>
         </div>
-
-        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
-          <div class="text-[11px] text-slate-400 font-medium">Текущий стрик</div>
-          <div id="statsStreakDays" class="text-2xl font-black text-orange-400 mt-1">0 дн.</div>
-          <div class="text-[10px] text-orange-300 mt-0.5 flex items-center gap-1">
-            <i class="ph-fill ph-fire"></i> В непрерывном огне
-          </div>
+        <div class="bg-base border border-edge p-3">
+          <span class="text-[9px] uppercase tracking-wider text-dim block">DISCIPLINE STREAK</span>
+          <div id="statStreakDays" class="font-display font-black text-2xl text-ochre mt-1">0 D</div>
+          <span class="text-[9px] text-dim mt-0.5 block">CURRENT FLOW</span>
         </div>
-
-        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
-          <div class="text-[11px] text-slate-400 font-medium">Успех этой недели</div>
-          <div id="statsWeekRate" class="text-2xl font-black text-emerald-400 mt-1">0%</div>
-          <div id="statsWeekDaysCount" class="text-[10px] text-slate-400 mt-0.5">0 из 7 дней</div>
+        <div class="bg-base border border-edge p-3">
+          <span class="text-[9px] uppercase tracking-wider text-dim block">NOTES COMMITTED</span>
+          <div id="statTotalNotes" class="font-display font-black text-2xl text-moss mt-1">0</div>
+          <span class="text-[9px] text-dim mt-0.5 block">KNOWLEDGE BASE</span>
         </div>
-
-        <div class="bg-brandDark/80 p-3.5 rounded-2xl border border-white/5">
-          <div class="text-[11px] text-slate-400 font-medium">Заметок создано</div>
-          <div id="statsTotalNotes" class="text-2xl font-black text-busuu mt-1">0</div>
-          <div class="text-[10px] text-slate-400 mt-0.5">Словарь и правила</div>
+        <div class="bg-base border border-edge p-3">
+          <span class="text-[9px] uppercase tracking-wider text-dim block">SYSTEM STABILITY</span>
+          <div class="font-display font-black text-2xl text-ice mt-1">100%</div>
+          <span class="text-[9px] text-dim mt-0.5 block">LOCAL VERIFIED</span>
         </div>
       </div>
 
       <!-- Schedule recap -->
-      <div class="mt-4 p-3 rounded-2xl bg-brandDark/50 border border-white/5 text-xs text-slate-300 space-y-1.5">
-        <div class="font-bold text-slate-200 mb-1 flex items-center gap-1.5">
-          <i class="ph-bold ph-calendar-check text-duo"></i> Твоя система занятий:
-        </div>
-        <div class="flex justify-between text-[11px]">
-          <span class="text-duo font-semibold">Пн, Ср, Пт:</span>
-          <span>Duolingo (Словарный запас, квесты)</span>
-        </div>
-        <div class="flex justify-between text-[11px]">
-          <span class="text-red-400 font-semibold">Вт, Чт:</span>
-          <span>BBC Learning English (Грамматика, Аудио)</span>
-        </div>
-        <div class="flex justify-between text-[11px]">
-          <span class="text-busuu font-semibold">Суббота:</span>
-          <span>Busuu English (Комплексный урок, диалоги)</span>
-        </div>
-        <div class="flex justify-between text-[11px]">
-          <span class="text-purple-400 font-semibold">Воскресенье:</span>
-          <span>Speaking & Свободное повторение недели</span>
-        </div>
+      <div class="mt-4 p-3 bg-base border border-edge text-[10px] space-y-1 text-dim">
+        <div class="text-ink font-bold uppercase tracking-wider mb-1">// ASSIGNED PROTOCOL</div>
+        <div class="flex justify-between"><span>ПН / СР / ПТ:</span> <span class="text-ink">DUOLINGO</span></div>
+        <div class="flex justify-between"><span>ВТ / ЧТ:</span> <span class="text-ink">BBC LEARNING ENGLISH</span></div>
+        <div class="flex justify-between"><span>СУББОТА:</span> <span class="text-ink">BUSUU ENGLISH</span></div>
+        <div class="flex justify-between"><span>ВОСКРЕСЕНЬЕ:</span> <span class="text-ink">REVIEW & FREESTYLE</span></div>
       </div>
 
-      <div class="mt-5 flex items-center justify-between pt-3 border-t border-white/10">
-        <button onclick="confirmResetAll()" class="text-xs text-red-400/80 hover:text-red-400 flex items-center gap-1">
-          <i class="ph-bold ph-arrow-counter-clockwise"></i> Сбросить данные
-        </button>
-        <button onclick="closeStatsModal()" class="px-5 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">
-          Закрыть
+      <div class="mt-4 pt-3 border-t border-edge flex justify-end">
+        <button onclick="closeStatsModal()" class="px-4 py-1.5 bg-edge text-ink hover:bg-edgeStrong uppercase text-xs font-bold font-display">
+          CLOSE
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Notification Toast -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-800/95 border border-white/10 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
-    <i id="toastIcon" class="ph-fill ph-check-circle text-duo text-base"></i>
-    <span id="toastMsg">Успешно сохранено!</span>
+  <!-- Brutalist Notification Stamped Toast -->
+  <div id="toastBox" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-surfaceElevated border-2 border-edgeStrong px-4 py-2.5 pm-shadow text-ink text-xs font-mono opacity-0 pointer-events-none transition-all duration-200 flex items-center gap-2.5 max-w-[90vw]">
+    <span id="toastIconBlock" class="w-2.5 h-2.5 bg-rust inline-block"></span>
+    <span id="toastMsg" class="uppercase font-bold tracking-tight">ACTION EXECUTED</span>
   </div>
 
-  <!-- Application Logic -->
+  <!-- APPLICATION LOGIC -->
   <script>
     /* -------------------------------------------------------------
-       CONFIG & THEMES FOR SCHEDULE
+       CONFIG: WEEKLY CURRICULUM
     ------------------------------------------------------------- */
-    const DAYS_CONFIG = [
+    const SCHEDULE = [
       {
-        dayIndex: 1, // Monday
-        name: "Понедельник",
-        shortName: "ПН",
-        app: "Duolingo",
-        tag: "Геймификация & Ударный режим",
-        theme: "duo",
-        icon: "ph-bird",
-        link: "https://www.duolingo.com",
-        bgClass: "from-emerald-950/60 to-duo/10",
-        borderClass: "border-duo/30",
-        badgeBg: "bg-duo/15 text-duo border-duo/30",
-        btnColor: "bg-duo text-black hover:bg-duoDark",
-        glowClass: "glow-duo"
+        dayIndex: 1, // Mon
+        ruDay: "ПОНЕДЕЛЬНИК",
+        shortDay: "MON",
+        platform: "DUOLINGO",
+        theme: "Daily Streak & Vocabulary",
+        url: "https://www.duolingo.com",
+        accent: "moss",
+        accentColor: "#9ebc3a"
       },
       {
-        dayIndex: 2, // Tuesday
-        name: "Вторник",
-        shortName: "ВТ",
-        app: "BBC English",
-        tag: "6 Minute English & Грамматика",
-        theme: "bbc",
-        icon: "ph-broadcast",
-        link: "https://www.bbc.co.uk/learningenglish",
-        bgClass: "from-red-950/60 to-bbc/10",
-        borderClass: "border-bbc/40",
-        badgeBg: "bg-bbc/20 text-red-400 border-bbc/40",
-        btnColor: "bg-bbc text-white hover:bg-bbcLight",
-        glowClass: "glow-bbc"
+        dayIndex: 2, // Tue
+        ruDay: "ВТОРНИК",
+        shortDay: "TUE",
+        platform: "BBC ENGLISH",
+        theme: "6-Minute Eng & Grammar",
+        url: "https://www.bbc.co.uk/learningenglish",
+        accent: "rust",
+        accentColor: "#b8523a"
       },
       {
-        dayIndex: 3, // Wednesday
-        name: "Среда",
-        shortName: "СР",
-        app: "Duolingo",
-        tag: "Повторение & Лиги Duolingo",
-        theme: "duo",
-        icon: "ph-bird",
-        link: "https://www.duolingo.com",
-        bgClass: "from-emerald-950/60 to-duo/10",
-        borderClass: "border-duo/30",
-        badgeBg: "bg-duo/15 text-duo border-duo/30",
-        btnColor: "bg-duo text-black hover:bg-duoDark",
-        glowClass: "glow-duo"
+        dayIndex: 3, // Wed
+        ruDay: "СРЕДА",
+        shortDay: "WED",
+        platform: "DUOLINGO",
+        theme: "Target Practice & Stories",
+        url: "https://www.duolingo.com",
+        accent: "moss",
+        accentColor: "#9ebc3a"
       },
       {
-        dayIndex: 4, // Thursday
-        name: "Четверг",
-        shortName: "ЧТ",
-        app: "BBC English",
-        tag: "News Review & Произношение",
-        theme: "bbc",
-        icon: "ph-broadcast",
-        link: "https://www.bbc.co.uk/learningenglish",
-        bgClass: "from-red-950/60 to-bbc/10",
-        borderClass: "border-bbc/40",
-        badgeBg: "bg-bbc/20 text-red-400 border-bbc/40",
-        btnColor: "bg-bbc text-white hover:bg-bbcLight",
-        glowClass: "glow-bbc"
+        dayIndex: 4, // Thu
+        ruDay: "ЧЕТВЕРГ",
+        shortDay: "THU",
+        platform: "BBC ENGLISH",
+        theme: "News Review & Pronunciation",
+        url: "https://www.bbc.co.uk/learningenglish",
+        accent: "rust",
+        accentColor: "#b8523a"
       },
       {
-        dayIndex: 5, // Friday
-        name: "Пятница",
-        shortName: "ПТ",
-        app: "Duolingo",
-        tag: "Закрепление недели & Истории",
-        theme: "duo",
-        icon: "ph-bird",
-        link: "https://www.duolingo.com",
-        bgClass: "from-emerald-950/60 to-duo/10",
-        borderClass: "border-duo/30",
-        badgeBg: "bg-duo/15 text-duo border-duo/30",
-        btnColor: "bg-duo text-black hover:bg-duoDark",
-        glowClass: "glow-duo"
+        dayIndex: 5, // Fri
+        ruDay: "ПЯТНИЦА",
+        shortDay: "FRI",
+        platform: "DUOLINGO",
+        theme: "Speed Challenge & Leagues",
+        url: "https://www.duolingo.com",
+        accent: "moss",
+        accentColor: "#9ebc3a"
       },
       {
-        dayIndex: 6, // Saturday
-        name: "Суббота",
-        shortName: "СБ",
-        app: "Busuu English",
-        tag: "Урок с носителями & Письмо",
-        theme: "busuu",
-        icon: "ph-chats-circle",
-        link: "https://www.busuu.com",
-        bgClass: "from-blue-950/60 to-busuu/10",
-        borderClass: "border-busuu/40",
-        badgeBg: "bg-busuu/20 text-busuu border-busuu/40",
-        btnColor: "bg-busuu text-white hover:bg-busuuDark",
-        glowClass: "glow-busuu"
+        dayIndex: 6, // Sat
+        ruDay: "СУББОТА",
+        shortDay: "SAT",
+        platform: "BUSUU",
+        theme: "Native Dialogue & Review",
+        url: "https://www.busuu.com",
+        accent: "ice",
+        accentColor: "#7798a6"
       },
       {
-        dayIndex: 0, // Sunday
-        name: "Воскресенье",
-        shortName: "ВС",
-        app: "Speaking & Review",
-        tag: "Разговорная практика / Отдых",
-        theme: "sunday",
-        icon: "ph-headphones",
-        link: "https://www.youtube.com/results?search_query=english+listening+practice",
-        bgClass: "from-purple-950/60 to-sunday/10",
-        borderClass: "border-sunday/40",
-        badgeBg: "bg-sunday/20 text-purple-300 border-sunday/40",
-        btnColor: "bg-sunday text-white hover:bg-purple-600",
-        glowClass: "glow-sunday"
+        dayIndex: 0, // Sun
+        ruDay: "ВОСКРЕСЕНЬЕ",
+        shortDay: "SUN",
+        platform: "FREESTYLE / REVIEW",
+        theme: "Podcast & Weekly Recap",
+        url: "https://www.youtube.com/results?search_query=english+listening+practice",
+        accent: "ochre",
+        accentColor: "#cfa24b"
       }
     ];
 
-    const MOTIVATIONAL_QUOTES = [
-      "«Little by little, a little becomes a lot.»",
-      "«Consistency is the key to mastering English!»",
-      "«Don't stop until you're proud. You're doing amazing.»",
-      "«15 minutes a day beats 3 hours once a week.»",
-      "«Language is not a talent, it's a habit.»"
+    const POSTMODERN_QUOTES = [
+      "«Repetition becomes structure. What you mark today cannot be dismantled.»",
+      "«Deconstruct hesitation. The discipline log records only actions, not intentions.»",
+      "«A language is not an essence to discover, but a grid to inhabit daily.»",
+      "«No revisions. No undo. Once stamped, the session belongs to history.»",
+      "«Discipline is brutalist architecture: raw, uncompromising, persistent.»"
     ];
 
     /* -------------------------------------------------------------
-       STATE MANAGEMENT
+       STORAGE & PERSISTENCE
     ------------------------------------------------------------- */
-    const STORAGE_KEY = 'eng_habit_tracker_data_v1';
-    let currentWeekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
-    let activeEditingKey = null;
+    const STORAGE_KEY = 'postmodern_eng_tracker_data_v3';
+    let currentWeekOffset = 0;
+    let editingDateKey = null;
 
-    // Load or initialize App Data
-    function getAppData() {
+    function loadStore() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { completedDays: {}, notes: {} };
+        if (!raw) return { sealedDays: {}, notes: {} };
         return JSON.parse(raw);
       } catch (e) {
-        console.error("Storage error:", e);
-        return { completedDays: {}, notes: {} };
+        return { sealedDays: {}, notes: {} };
       }
     }
 
-    function saveAppData(data) {
+    function saveStore(data) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (e) {
-        console.error("Failed to save data:", e);
+        console.error("Storage write error", e);
       }
     }
 
     /* -------------------------------------------------------------
        DATE HELPERS
     ------------------------------------------------------------- */
-    // Helper to format Date to 'YYYY-MM-DD'
-    function formatDateKey(date) {
+    function formatKey(date) {
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, '0');
       const d = String(date.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
     }
 
-    // Get Monday of the week with an offset
-    function getMondayOfWeek(offsetWeeks = 0) {
+    function getTodayDateKey() {
+      return formatKey(new Date());
+    }
+
+    function getWeekDays(offsetWeeks = 0) {
       const now = new Date();
-      const day = now.getDay(); // 0 is Sun, 1 is Mon...
+      const day = now.getDay();
       const diffToMonday = day === 0 ? -6 : 1 - day;
       const monday = new Date(now);
       monday.setDate(now.getDate() + diffToMonday + (offsetWeeks * 7));
       monday.setHours(0, 0, 0, 0);
-      return monday;
-    }
 
-    // Get all 7 days of the week starting Monday
-    function getDaysOfTargetWeek(offsetWeeks = 0) {
-      const monday = getMondayOfWeek(offsetWeeks);
       const days = [];
+      const todayKey = getTodayDateKey();
+
       for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        // Find configuration: Monday is 1, Sun is 0
-        const jsDayIndex = d.getDay();
-        const conf = DAYS_CONFIG.find(c => c.dayIndex === jsDayIndex);
+        const dayIdx = d.getDay();
+        const conf = SCHEDULE.find(s => s.dayIndex === dayIdx);
+        const k = formatKey(d);
+
         days.push({
           date: d,
-          dateKey: formatDateKey(d),
+          dateKey: k,
           config: conf,
-          isToday: formatDateKey(d) === formatDateKey(new Date())
+          isToday: k === todayKey
         });
       }
       return days;
     }
 
     /* -------------------------------------------------------------
-       STREAK CALCULATION
+       CALCULATE DISCIPLINE STREAK
     ------------------------------------------------------------- */
-    function calculateStreak() {
-      const data = getAppData();
+    function computeStreak() {
+      const data = loadStore();
       const today = new Date();
       let streak = 0;
-      let checkDate = new Date(today);
+      let walker = new Date(today);
 
-      const todayKey = formatDateKey(checkDate);
-      const todayCompleted = !!data.completedDays[todayKey];
-
-      // If today is completed, streak includes today.
-      // If not completed today yet, check starting yesterday so streak isn't lost during the day!
-      if (!todayCompleted) {
-        checkDate.setDate(checkDate.getDate() - 1);
+      const todayK = formatKey(walker);
+      // If today not yet checked, check starting from yesterday
+      if (!data.sealedDays[todayK]) {
+        walker.setDate(walker.getDate() - 1);
       }
 
       while (true) {
-        const key = formatDateKey(checkDate);
-        if (data.completedDays[key]) {
+        const k = formatKey(walker);
+        if (data.sealedDays[k]) {
           streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
+          walker.setDate(walker.getDate() - 1);
         } else {
           break;
         }
       }
-
       return streak;
     }
 
     /* -------------------------------------------------------------
-       SOUND & HAPTIC FEEDBACK
+       ONE-WAY SEAL LOGIC (PERMANENT LOCK)
     ------------------------------------------------------------- */
-    function triggerHaptic() {
+    function attemptSealDay(dateKey) {
+      const data = loadStore();
+
+      // If already sealed, completely immutable
+      if (data.sealedDays[dateKey]) {
+        toast("ЗАПИСЬ ЗАПЕЧАТАНА. ИЗМЕНЕНИЕ ЗАПРЕЩЕНО.", "#b8523a");
+        vibrate([80, 50, 80]);
+        return;
+      }
+
+      // Mark permanently
+      data.sealedDays[dateKey] = {
+        stampedAt: new Date().toISOString()
+      };
+      saveStore(data);
+
+      vibrate([50, 40, 100]);
+      launchDarkConfetti();
+      toast("УРОК ЗАПЕЧАТАН НАВСЕГДА // SEALED", "#9ebc3a");
+
+      renderAll();
+    }
+
+    function vibrate(pattern) {
       if (window.navigator && window.navigator.vibrate) {
-        try {
-          window.navigator.vibrate([30, 20, 50]);
-        } catch (e) {
-          // Ignore
-        }
+        try { window.navigator.vibrate(pattern); } catch (e) {}
       }
     }
 
-    function fireConfetti() {
+    function launchDarkConfetti() {
       if (typeof confetti === 'function') {
         confetti({
-          particleCount: 55,
+          particleCount: 45,
           spread: 60,
-          origin: { y: 0.7 },
-          colors: ['#58CC02', '#2486FF', '#BB1919', '#FBBF24']
+          origin: { y: 0.6 },
+          colors: ['#b8523a', '#9ebc3a', '#cfa24b', '#444a56', '#dcd8cf'],
+          shapes: ['square']
         });
       }
     }
 
-    function showToast(message, iconClass = "ph-check-circle") {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      const toastIcon = document.getElementById('toastIcon');
+    function toast(text, colorHex = "#b8523a") {
+      const box = document.getElementById('toastBox');
+      const msg = document.getElementById('toastMsg');
+      const block = document.getElementById('toastIconBlock');
 
-      toastMsg.innerText = message;
-      toastIcon.className = `ph-fill ${iconClass} text-duo text-base`;
-      toast.classList.remove('opacity-0', 'pointer-events-none');
-      toast.classList.add('opacity-100');
+      msg.innerText = text;
+      block.style.backgroundColor = colorHex;
+      box.classList.remove('opacity-0', 'pointer-events-none');
+      box.classList.add('opacity-100');
 
       setTimeout(() => {
-        toast.classList.add('opacity-0', 'pointer-events-none');
-        toast.classList.remove('opacity-100');
-      }, 2300);
+        box.classList.add('opacity-0', 'pointer-events-none');
+        box.classList.remove('opacity-100');
+      }, 2600);
     }
 
     /* -------------------------------------------------------------
-       CORE RENDERING
+       RENDERING
     ------------------------------------------------------------- */
-    function renderApp() {
-      const data = getAppData();
-      const streak = calculateStreak();
-      const streakEl = document.getElementById('streakCount');
-      if (streakEl) streakEl.textContent = streak;
+    function renderAll() {
+      const data = loadStore();
+      const streak = computeStreak();
 
-      // Render today hero banner
-      renderTodayBanner(data);
+      document.getElementById('streakDisplay').innerText = streak;
 
-      // Render current week dates and cards
-      renderWeekSection(data);
+      // Render Hero Today
+      renderHeroToday(data);
 
-      // Rotate quote
-      const quoteEl = document.getElementById('motivationalQuote');
-      if (quoteEl) {
-        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        quoteEl.textContent = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
-      }
+      // Render Week View & Brutalist Meter
+      renderWeekMatrix(data);
+
+      // Random / rotating postmodern quote
+      const quoteIdx = new Date().getDay() % POSTMODERN_QUOTES.length;
+      document.getElementById('quoteBox').innerText = POSTMODERN_QUOTES[quoteIdx];
     }
 
-    // Render Hero Card for Today
-    function renderTodayBanner(data) {
+    function renderHeroToday(data) {
       const today = new Date();
-      const todayKey = formatDateKey(today);
-      const todayConfig = DAYS_CONFIG.find(c => c.dayIndex === today.getDay());
-      const isCompleted = !!data.completedDays[todayKey];
+      const todayKey = getTodayDateKey();
+      const todayConf = SCHEDULE.find(s => s.dayIndex === today.getDay());
+      const isSealed = !!data.sealedDays[todayKey];
 
-      const todayCard = document.getElementById('todayCard');
-      const todayHeroBg = document.getElementById('todayHeroBg');
-      const todayLabelBadge = document.getElementById('todayLabelBadge');
-      const todayTitle = document.getElementById('todayTitle');
-      const todayFocus = document.getElementById('todayFocus');
-      const todayAppIcon = document.getElementById('todayAppIcon');
-      const todayAppText = document.getElementById('todayAppText');
-      const todayCheckBtn = document.getElementById('todayCheckBtn');
-      const todayCheckIcon = document.getElementById('todayCheckIcon');
-      const todayStatusText = document.getElementById('todayStatusText');
-      const todayDirectLink = document.getElementById('todayDirectLink');
+      const heroDayTitle = document.getElementById('heroDayTitle');
+      const heroDateLabel = document.getElementById('heroDateLabel');
+      const heroPlatformBadge = document.getElementById('heroPlatformBadge');
+      const heroFocusTopic = document.getElementById('heroFocusTopic');
+      const heroActionBtn = document.getElementById('heroActionBtn');
+      const heroActionIcon = document.getElementById('heroActionIcon');
+      const heroActionSub = document.getElementById('heroActionSub');
+      const heroStatusText = document.getElementById('heroStatusText');
+      const heroDirectLink = document.getElementById('heroDirectLink');
 
-      // Theme styling application
-      todayCard.className = `mt-4 p-5 rounded-3xl relative overflow-hidden transition-all duration-300 border bg-gradient-to-br ${todayConfig.bgClass} ${todayConfig.borderClass} ${todayConfig.glowClass}`;
-      todayHeroBg.className = `absolute -right-6 -bottom-6 w-32 h-32 opacity-15 rounded-full pointer-events-none ${todayConfig.theme === 'duo' ? 'bg-duo' : todayConfig.theme === 'bbc' ? 'bg-bbc' : todayConfig.theme === 'busuu' ? 'bg-busuu' : 'bg-sunday'}`;
+      heroDateLabel.innerText = `${today.getDate()} ${today.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase()} // TODAY`;
+      heroDayTitle.innerText = todayConf.ruDay;
+      heroPlatformBadge.innerText = todayConf.platform;
+      heroFocusTopic.innerText = todayConf.theme;
+      heroDirectLink.href = todayConf.url;
 
-      todayLabelBadge.className = `px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase rounded-full border ${todayConfig.badgeBg}`;
-      todayTitle.innerText = `${todayConfig.name}, ${today.getDate()} ${today.toLocaleDateString('ru-RU', { month: 'short' })}`;
-      todayAppIcon.innerHTML = `<i class="ph-bold ${todayConfig.icon} text-base"></i>`;
-      todayAppText.innerText = `${todayConfig.app} • ${todayConfig.tag}`;
-      todayDirectLink.href = todayConfig.link;
-      todayDirectLink.className = `flex items-center gap-1 font-semibold hover:underline ${todayConfig.theme === 'duo' ? 'text-duo' : todayConfig.theme === 'bbc' ? 'text-red-400' : todayConfig.theme === 'busuu' ? 'text-busuu' : 'text-purple-300'}`;
+      if (isSealed) {
+        // Locked state
+        heroActionBtn.disabled = true;
+        heroActionBtn.className = "w-16 h-16 bg-rust border-2 border-rust text-white flex items-center justify-center pm-shadow cursor-default stamp-sealed";
+        heroActionIcon.className = "ph-fill ph-lock-key text-3xl text-white";
+        heroActionSub.innerText = "SEALED";
+        heroActionSub.className = "text-[9px] text-rust uppercase tracking-widest mt-1.5 font-black";
 
-      if (isCompleted) {
-        todayCheckBtn.className = "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200 bg-emerald-500 text-black";
-        todayCheckIcon.className = "ph-bold ph-check-fat text-2xl animate-bounce";
-        todayStatusText.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i class="ph-fill ph-check-circle"></i> Задание на сегодня выполнено!</span>`;
+        heroStatusText.innerHTML = `
+          <span class="flex items-center gap-1.5 text-rust font-bold">
+            <i class="ph-fill ph-check-circle"></i> УРОК ЗАКРЕПЛЕН // ARCHIVED
+          </span>
+        `;
       } else {
-        todayCheckBtn.className = `relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 duration-200 ${todayConfig.btnColor}`;
-        todayCheckIcon.className = "ph-bold ph-check text-2xl";
-        todayStatusText.innerText = "Статус: Еще не выполнено";
+        // Pending state
+        heroActionBtn.disabled = false;
+        heroActionBtn.className = "w-16 h-16 bg-surfaceElevated border-2 border-edgeStrong hover:border-moss text-ink flex items-center justify-center pm-shadow transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer";
+        heroActionIcon.className = "ph-bold ph-check text-2xl text-moss";
+        heroActionSub.innerText = "SEAL";
+        heroActionSub.className = "text-[9px] text-dim uppercase tracking-widest mt-1.5 font-bold";
+
+        heroStatusText.innerHTML = `
+          <span class="flex items-center gap-1.5 text-dim font-bold">
+            <span class="w-2 h-2 rounded-full bg-ochre inline-block animate-pulse"></span>
+            ОЖИДАЕТ ВЫПОЛНЕНИЯ
+          </span>
+        `;
       }
     }
 
-    // Render target week list & progress circle
-    function renderWeekSection(data) {
-      const weekDays = getDaysOfTargetWeek(currentWeekOffset);
-      const listContainer = document.getElementById('weekDaysList');
-      listContainer.innerHTML = '';
+    function renderWeekMatrix(data) {
+      const days = getWeekDays(currentWeekOffset);
+      const stack = document.getElementById('weekDaysStack');
+      stack.innerHTML = '';
 
-      let completedCount = 0;
+      let sealedCount = 0;
 
-      // Update Week Title Range
-      const firstDay = weekDays[0].date;
-      const lastDay = weekDays[6].date;
-      const rangeText = `${firstDay.getDate()} ${firstDay.toLocaleDateString('ru-RU', { month: 'short' })} — ${lastDay.getDate()} ${lastDay.toLocaleDateString('ru-RU', { month: 'short' })}`;
-      document.getElementById('currentWeekRange').innerText = rangeText;
+      // Header interval text
+      const dStart = days[0].date;
+      const dEnd = days[6].date;
+      document.getElementById('calendarDateSpan').innerText = 
+        `${dStart.getDate()} ${dStart.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase()} — ${dEnd.getDate()} ${dEnd.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase()}`;
 
-      const weekLabelName = document.getElementById('selectedWeekName');
-      const currentIndicator = document.getElementById('currentWeekIndicatorBtn');
+      const weekLabelBtn = document.getElementById('weekLabelBtn');
       if (currentWeekOffset === 0) {
-        weekLabelName.innerText = "Текущая неделя";
-        currentIndicator.className = "px-2 text-[11px] font-bold text-duo";
-      } else if (currentWeekOffset === -1) {
-        weekLabelName.innerText = "Прошлая неделя";
-        currentIndicator.className = "px-2 text-[11px] font-semibold text-slate-300 hover:text-white";
+        weekLabelBtn.innerText = "THIS WEEK";
+        weekLabelBtn.className = "px-2 h-7 bg-surfaceElevated border border-rust text-rust text-[9px] font-bold uppercase tracking-wider flex items-center justify-center";
       } else {
-        weekLabelName.innerText = currentWeekOffset > 0 ? `+${currentWeekOffset} нед.` : `${currentWeekOffset} нед.`;
-        currentIndicator.className = "px-2 text-[11px] font-semibold text-slate-300 hover:text-white";
+        weekLabelBtn.innerText = currentWeekOffset > 0 ? `+${currentWeekOffset} WK` : `${currentWeekOffset} WK`;
+        weekLabelBtn.className = "px-2 h-7 bg-surfaceElevated border border-edge text-dim text-[9px] font-bold uppercase tracking-wider flex items-center justify-center";
       }
 
-      // Populate cards for each day
-      weekDays.forEach(item => {
-        const isCompleted = !!data.completedDays[item.dateKey];
-        if (isCompleted) completedCount++;
+      // Render 7 Cards
+      days.forEach(item => {
+        const isSealed = !!data.sealedDays[item.dateKey];
+        if (isSealed) sealedCount++;
 
         const note = data.notes[item.dateKey] || '';
 
         const card = document.createElement('div');
-        card.className = `group glass-card rounded-2xl p-3.5 transition-all duration-200 border ${
-          item.isToday ? 'border-white/30 bg-surface/90 shadow-lg' : 'hover:border-white/20'
-        }`;
+        card.className = `p-3 bg-surface border ${
+          item.isToday 
+            ? 'border-edgeStrong border-l-4 border-l-moss pm-shadow' 
+            : 'border-edge pm-shadow-sm'
+        } transition-all`;
 
-        // Color badge based on service
-        let tagColor = 'text-slate-400 bg-slate-800';
-        if (item.config.theme === 'duo') tagColor = 'text-duo bg-duo/10 border border-duo/20';
-        if (item.config.theme === 'bbc') tagColor = 'text-red-400 bg-bbc/10 border border-bbc/20';
-        if (item.config.theme === 'busuu') tagColor = 'text-busuu bg-busuu/10 border border-busuu/20';
-        if (item.config.theme === 'sunday') tagColor = 'text-purple-400 bg-sunday/10 border border-sunday/20';
+        // Color tag based on platform
+        let tagColor = "text-dim border-edge";
+        if (item.config.accent === "moss") tagColor = "text-moss border-moss/40";
+        if (item.config.accent === "rust") tagColor = "text-rust border-rust/40";
+        if (item.config.accent === "ice") tagColor = "text-ice border-ice/40";
+        if (item.config.accent === "ochre") tagColor = "text-ochre border-ochre/40";
 
         card.innerHTML = `
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3 min-w-0">
-              <!-- Checkbox button -->
-              <button onclick="toggleDayCompletion('${item.dateKey}')" class="w-9 h-9 rounded-xl flex items-center justify-center transition-transform active:scale-90 flex-shrink-0 ${
-                isCompleted 
-                  ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20' 
-                  : 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300 border border-white/5'
-              }">
-                <i class="ph-bold ${isCompleted ? 'ph-check-bold text-lg' : 'ph-circle text-base'}"></i>
+              <!-- PERMANENT ONE-WAY LOCK BUTTON -->
+              <button 
+                onclick="attemptSealDay('${item.dateKey}')"
+                ${isSealed ? 'disabled title="Задание запечатано"' : 'title="Зафиксировать урок"'}
+                class="w-9 h-9 flex items-center justify-center text-xs font-bold border transition-all ${
+                  isSealed 
+                    ? 'bg-rust border-rust text-white cursor-default pm-shadow-sm' 
+                    : 'bg-base border-edgeStrong hover:border-ink text-dim hover:text-ink active:translate-x-0.5 active:translate-y-0.5 cursor-pointer'
+                }"
+              >
+                <i class="${isSealed ? 'ph-fill ph-lock-key text-base' : 'ph-bold ph-check text-sm'}"></i>
               </button>
 
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-sm ${item.isToday ? 'text-white' : 'text-slate-200'}">
-                    ${item.config.shortName}, ${item.date.getDate()}
+                  <span class="font-display font-black text-sm text-ink uppercase tracking-tight">
+                    ${item.config.shortDay} // ${item.date.getDate()}
                   </span>
-                  ${item.isToday ? '<span class="px-1.5 py-0.2 bg-duo text-black font-extrabold text-[9px] rounded uppercase">Сегодня</span>' : ''}
+                  ${item.isToday ? '<span class="text-[9px] px-1 bg-moss text-base font-bold uppercase">TODAY</span>' : ''}
+                  ${isSealed ? '<span class="text-[9px] text-rust font-bold uppercase tracking-wider flex items-center gap-0.5"><i class="ph-bold ph-lock-key"></i> SEALED</span>' : ''}
                 </div>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${tagColor}">
-                    ${item.config.app}
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 border ${tagColor} uppercase">
+                    ${item.config.platform}
                   </span>
-                  <span class="text-[11px] text-slate-400 truncate hidden xs:inline">${item.config.tag}</span>
+                  <span class="text-[10px] text-dim truncate max-w-[150px]">${item.config.theme}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Actions: Notes & App Link -->
-            <div class="flex items-center gap-1 flex-shrink-0">
-              <button onclick="openNoteModal('${item.dateKey}', '${item.config.name}')" class="w-8 h-8 rounded-lg flex items-center justify-center transition active:scale-90 ${
-                note ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'bg-slate-800/80 hover:bg-slate-700 text-slate-400'
-              }" title="Заметки">
-                <i class="ph-bold ${note ? 'ph-note-pencil' : 'ph-notepad'} text-sm"></i>
+            <!-- Note trigger & external platform -->
+            <div class="flex items-center gap-1.5">
+              <button 
+                onclick="openNoteModal('${item.dateKey}', '${item.config.ruDay}')"
+                class="w-7 h-7 bg-base border ${note ? 'border-ochre text-ochre' : 'border-edge text-dim'} hover:border-ink hover:text-ink flex items-center justify-center text-xs"
+                title="Заметки"
+              >
+                <i class="ph-bold ${note ? 'ph-note-pencil' : 'ph-file-text'}"></i>
               </button>
 
-              <a href="${item.config.link}" target="_blank" rel="noopener" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-90" title="Открыть платформу">
-                <i class="ph-bold ph-arrow-square-out text-sm"></i>
+              <a 
+                href="${item.config.url}" 
+                target="_blank" 
+                rel="noopener"
+                class="w-7 h-7 bg-base border border-edge hover:border-ink text-dim hover:text-ink flex items-center justify-center text-xs"
+                title="Перейти к платформе"
+              >
+                <i class="ph-bold ph-arrow-up-right"></i>
               </a>
             </div>
           </div>
 
-          <!-- Note Preview if exists -->
+          <!-- Stored Notes preview -->
           ${note ? `
-            <div onclick="openNoteModal('${item.dateKey}', '${item.config.name}')" class="mt-2.5 pt-2 border-t border-white/5 text-[11px] text-slate-300 italic flex items-center gap-1.5 cursor-pointer line-clamp-1 hover:text-duo transition">
-              <i class="ph-fill ph-push-pin text-amber-400 text-xs flex-shrink-0"></i>
-              <span class="truncate">${escapeHtml(note)}</span>
+            <div onclick="openNoteModal('${item.dateKey}', '${item.config.ruDay}')" class="mt-2.5 pt-2 border-t border-edge/60 text-[10px] text-dim flex items-center gap-1.5 cursor-pointer hover:text-ink">
+              <span class="text-ochre font-bold">// NOTE:</span>
+              <span class="truncate italic">${escapeHtml(note)}</span>
             </div>
           ` : ''}
         `;
 
-        listContainer.appendChild(card);
+        stack.appendChild(card);
       });
 
-      // Update Circular Progress Bar
-      const totalDays = 7;
-      const percent = Math.round((completedCount / totalDays) * 100);
-      document.getElementById('weekFraction').innerText = `${completedCount}/${totalDays}`;
-      document.getElementById('weekPercent').innerText = `${percent}%`;
+      // Update Brutalist Progress Bars
+      const ratio = `${sealedCount} / 7`;
+      const pct = Math.round((sealedCount / 7) * 100);
+      document.getElementById('weekRatio').innerText = ratio;
+      document.getElementById('weekPercentText').innerText = `[ ${pct}% ]`;
 
-      const circle = document.getElementById('weekProgressCircle');
-      const circumference = 2 * Math.PI * 18; // r = 18 => ~113.1
-      const offset = circumference - (percent / 100) * circumference;
-      circle.style.strokeDasharray = `${circumference} ${circumference}`;
-      circle.style.strokeDashoffset = offset;
+      // 7 Segments Render
+      const segContainer = document.getElementById('brutalistSegments');
+      segContainer.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const seg = document.createElement('div');
+        const isDone = i < sealedCount;
+        seg.className = `h-full border border-edgeStrong transition-all ${
+          isDone ? 'bg-rust pm-shadow-sm' : 'bg-base opacity-40'
+        }`;
+        segContainer.appendChild(seg);
+      }
     }
 
     /* -------------------------------------------------------------
-       INTERACTIONS & TOGGLES
+       WEEK NAVIGATION
     ------------------------------------------------------------- */
-    function toggleTodayCompletion() {
-      const todayKey = formatDateKey(new Date());
-      toggleDayCompletion(todayKey);
-    }
-
-    function toggleDayCompletion(dateKey) {
-      const data = getAppData();
-      const currentVal = !data.completedDays[dateKey];
-
-      if (currentVal) {
-        data.completedDays[dateKey] = true;
-        triggerHaptic();
-        fireConfetti();
-        showToast("Отличная работа! День зачтен 🔥");
-      } else {
-        delete data.completedDays[dateKey];
-        showToast("Отметка снята", "ph-x-circle");
-      }
-
-      saveAppData(data);
-      renderApp();
-    }
-
-    function changeWeekOffset(delta) {
+    function shiftWeekOffset(delta) {
       currentWeekOffset += delta;
-      renderApp();
+      renderAll();
     }
 
-    function resetToCurrentWeek() {
+    function resetWeekOffset() {
       currentWeekOffset = 0;
-      renderApp();
+      renderAll();
     }
 
     /* -------------------------------------------------------------
        NOTES MODAL
     ------------------------------------------------------------- */
     function openNoteModal(dateKey, dayName) {
-      activeEditingKey = dateKey;
-      const data = getAppData();
-      const existingNote = data.notes[dateKey] || '';
+      editingDateKey = dateKey;
+      const data = loadStore();
+      const note = data.notes[dateKey] || '';
 
-      const modal = document.getElementById('noteModal');
-      document.getElementById('noteModalDayTitle').innerText = `Заметка: ${dayName} (${dateKey})`;
-      document.getElementById('noteInput').value = existingNote;
+      document.getElementById('noteModalTitle').innerText = `${dayName} // ${dateKey}`;
+      document.getElementById('noteTextArea').value = note;
+      document.getElementById('noteModal').classList.remove('hidden');
 
-      modal.classList.remove('hidden');
-      setTimeout(() => document.getElementById('noteInput').focus(), 100);
+      setTimeout(() => document.getElementById('noteTextArea').focus(), 80);
     }
 
     function closeNoteModal() {
       document.getElementById('noteModal').classList.add('hidden');
-      activeEditingKey = null;
+      editingDateKey = null;
     }
 
     function saveCurrentNote() {
-      if (!activeEditingKey) return;
-      const text = document.getElementById('noteInput').value.trim();
-      const data = getAppData();
+      if (!editingDateKey) return;
+      const text = document.getElementById('noteTextArea').value.trim();
+      const data = loadStore();
 
       if (text) {
-        data.notes[activeEditingKey] = text;
-        showToast("Заметка сохранена!");
+        data.notes[editingDateKey] = text;
+        toast("ЗАМЕТКА ВНЕСЕНА В АРХИВ", "#cfa24b");
       } else {
-        delete data.notes[activeEditingKey];
-        showToast("Заметка удалена");
+        delete data.notes[editingDateKey];
+        toast("ЗАМЕТКА УДАЛЕНА", "#767c88");
       }
 
-      saveAppData(data);
+      saveStore(data);
       closeNoteModal();
-      renderApp();
+      renderAll();
     }
 
-    function deleteCurrentNote() {
-      if (!activeEditingKey) return;
-      const data = getAppData();
-      delete data.notes[activeEditingKey];
-      saveAppData(data);
-      document.getElementById('noteInput').value = '';
+    function clearCurrentNote() {
+      if (!editingDateKey) return;
+      const data = loadStore();
+      delete data.notes[editingDateKey];
+      saveStore(data);
+      document.getElementById('noteTextArea').value = '';
       closeNoteModal();
-      showToast("Заметка удалена");
-      renderApp();
+      toast("ЗАМЕТКА ОЧИЩЕНА", "#767c88");
+      renderAll();
     }
 
     /* -------------------------------------------------------------
-       STATISTICS MODAL
+       STATS MODAL
     ------------------------------------------------------------- */
     function openStatsModal() {
-      const data = getAppData();
-      const totalCompleted = Object.keys(data.completedDays).length;
-      const streak = calculateStreak();
+      const data = loadStore();
+      const totalSealed = Object.keys(data.sealedDays).length;
+      const streak = computeStreak();
       const totalNotes = Object.keys(data.notes).length;
 
-      // Current week calculations
-      const weekDays = getDaysOfTargetWeek(0);
-      let thisWeekCompleted = 0;
-      weekDays.forEach(d => {
-        if (data.completedDays[d.dateKey]) thisWeekCompleted++;
-      });
-      const weekRate = Math.round((thisWeekCompleted / 7) * 100);
-
-      document.getElementById('statsTotalCompleted').innerText = totalCompleted;
-      document.getElementById('statsStreakDays').innerText = `${streak} дн.`;
-      document.getElementById('statsWeekRate').innerText = `${weekRate}%`;
-      document.getElementById('statsWeekDaysCount').innerText = `${thisWeekCompleted} из 7 дней`;
-      document.getElementById('statsTotalNotes').innerText = totalNotes;
+      document.getElementById('statTotalSealed').innerText = totalSealed;
+      document.getElementById('statStreakDays').innerText = `${streak} D`;
+      document.getElementById('statTotalNotes').innerText = totalNotes;
 
       document.getElementById('statsModal').classList.remove('hidden');
     }
@@ -941,42 +926,13 @@
       document.getElementById('statsModal').classList.add('hidden');
     }
 
-    function confirmResetAll() {
-      const confirmBox = document.createElement('div');
-      confirmBox.className = "fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4";
-      confirmBox.innerHTML = `
-        <div class="bg-surface p-5 rounded-2xl max-w-xs w-full text-center border border-red-500/30">
-          <i class="ph-bold ph-warning-circle text-red-500 text-3xl"></i>
-          <h5 class="text-base font-bold text-white mt-2">Сбросить все данные?</h5>
-          <p class="text-xs text-slate-400 mt-1">Все отметки выполнения и сохраненные заметки будут очищены.</p>
-          <div class="mt-4 flex gap-2">
-            <button id="cancelResetBtn" class="flex-1 py-2 bg-slate-800 text-slate-300 font-semibold text-xs rounded-xl">Отмена</button>
-            <button id="okResetBtn" class="flex-1 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Сбросить</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(confirmBox);
-
-      document.getElementById('cancelResetBtn').onclick = () => confirmBox.remove();
-      document.getElementById('okResetBtn').onclick = () => {
-        localStorage.removeItem(STORAGE_KEY);
-        confirmBox.remove();
-        closeStatsModal();
-        showToast("Все данные сброшены");
-        renderApp();
-      };
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.innerText = str;
+      return d.innerHTML;
     }
 
-    /* -------------------------------------------------------------
-       UTILITIES
-    ------------------------------------------------------------- */
-    function escapeHtml(string) {
-      const div = document.createElement('div');
-      div.innerText = string;
-      return div.innerHTML;
-    }
-
-    // Modal click out to close
+    /* Close on backdrop tap */
     window.addEventListener('click', (e) => {
       const noteModal = document.getElementById('noteModal');
       const statsModal = document.getElementById('statsModal');
@@ -984,9 +940,8 @@
       if (e.target === statsModal) closeStatsModal();
     });
 
-    // Initialize on load
     window.addEventListener('DOMContentLoaded', () => {
-      renderApp();
+      renderAll();
     });
   </script>
 </body>
